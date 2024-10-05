@@ -1,0 +1,48 @@
+:host {
+	--stepper-primary-color: #009ef7;
+	--stepper-secondary-color: #b5b5c3;
+	--stepper-background-color: #f3f6f9;
+	--stepper-text-color: #181c32;
+	--stepper-disabled-color: #e1e3ea;
+
+	display: block; // o el valor que prefieras para el elemento host
+}
+.stepper {
+	&__nav {
+		background-color: var(--stepper-background-color);
+	}
+
+	&__nav-trigger {
+		color: var(--stepper-text-color);
+
+		&--current {
+			color: var(--stepper-primary-color);
+		}
+
+		&--completed {
+			color: var(--stepper-secondary-color);
+		}
+
+		&:disabled {
+			color: var(--stepper-disabled-color);
+		}
+	}
+
+	&__button {
+		&--back {
+			background-color: var(--stepper-background-color);
+			color: var(--stepper-text-color);
+		}
+
+		&--next,
+		&--submit {
+			background-color: var(--stepper-primary-color);
+			color: var(--stepper-background-color);
+		}
+
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
+		}
+	}
+}

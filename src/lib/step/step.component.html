@@ -1,0 +1,9 @@
+<ng-template #innerTemplate>
+	<div
+		class="step__content"
+		[attr.data-step-index]="index"
+		[attr.aria-label]="title"
+	>
+		<ng-content></ng-content>
+	</div>
+</ng-template>

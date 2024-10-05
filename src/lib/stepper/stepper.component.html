@@ -1,0 +1,99 @@
+<div class="stepper">
+	<!--begin::Nav-->
+	<nav class="stepper__nav">
+		<ng-container
+			[ngTemplateOutlet]="stepperNavTpt || defaultNavTpt"
+			[ngTemplateOutletContext]="{ steps: steps, currentIndex }"
+		></ng-container>
+	</nav>
+	<!--end::Nav-->
+
+	<!--begin::Content-->
+	<div class="stepper__content">
+		<ng-container
+			[ngTemplateOutlet]="currentStep?.innerTemplate"
+		></ng-container>
+	</div>
+	<!--end::Content-->
+
+	<!--begin::Controls-->
+	<div class="stepper__controls">
+		<ng-container
+			[ngTemplateOutlet]="stepperControlsTpt || defaultStepperControlsTpt"
+			[ngTemplateOutletContext]="{ steps: steps, currentIndex }"
+		></ng-container>
+	</div>
+	<!--end::Controls-->
+</div>
+
+<!-- begin:default-controls -->
+<ng-template #defaultStepperControlsTpt let-currentIndex="currentIndex">
+	<button
+		class="stepper__button stepper__button--back"
+		(click)="goTo(currentIndex - 1)"
+		*ngIf="currentIndex > 0"
+	>
+		<i class="stepper__button-icon stepper__button-icon--back"></i>
+		{{ backLabel }}
+	</button>
+
+	<button
+		class="stepper__button stepper__button--next"
+		(click)="goTo(currentIndex + 1)"
+		*ngIf="currentIndex < steps.length - 1"
+		[disabled]="!canGoNext()"
+	>
+		{{ continueLabel }}
+		<i class="stepper__button-icon stepper__button-icon--next"></i>
+	</button>
+
+	<button
+		class="stepper__button stepper__button--submit"
+		(click)="complete()"
+		*ngIf="currentIndex === steps.length - 1"
+	>
+		{{ submitLabel }}
+	</button>
+</ng-template>
+<!--end::default-controls-->
+
+<!-- begin:default-nav -->
+<ng-template #defaultNavTpt let-steps="steps" let-currentIndex="currentIndex">
+	<ul class="stepper__nav-list">
+		<li *ngFor="let step of steps; let i = index" class="stepper__nav-item">
+			<ng-container
+				[ngTemplateOutlet]="
+					step?.stepTriggerTpt || defaultNavTriggerTpt
+				"
+				[ngTemplateOutletContext]="{
+					title: step.title,
+					index: i,
+					isCurrent: currentIndex === i,
+					isCompleted: i < currentIndex
+				}"
+			></ng-container>
+		</li>
+	</ul>
+</ng-template>
+<!-- end:default-nav -->
+
+<!-- begin:default-nav-trigger -->
+<ng-template
+	#defaultNavTriggerTpt
+	let-title="title"
+	let-index="index"
+	let-isCurrent="isCurrent"
+	let-isCompleted="isCompleted"
+>
+	<button
+		class="stepper__nav-trigger"
+		[class.stepper__nav-trigger--current]="isCurrent"
+		[class.stepper__nav-trigger--completed]="isCompleted"
+		[disabled]="!canNavigateTo(index)"
+		(click)="goTo(index)"
+	>
+		<span class="stepper__nav-indicator">{{ index + 1 }}</span>
+		<span class="stepper__nav-title" *ngIf="title">{{ title }}</span>
+	</button>
+</ng-template>
+<!-- end:default-nav-trigger -->
