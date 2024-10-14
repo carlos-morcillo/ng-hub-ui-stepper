@@ -1,19 +1,13 @@
-import { animate, style, transition, trigger } from '@angular/animations';
 import {
 	ChangeDetectionStrategy,
 	Component,
-	ContentChild,
-	ContentChildren,
 	inject,
 	Input,
 	OnInit,
-	QueryList,
+	signal,
 	TemplateRef,
 	ViewChild
 } from '@angular/core';
-import { NextStepButtonDirective } from '../next-step-button.directive';
-import { PrevStepButtonDirective } from '../prev-step-button.directive';
-import { StepTriggerDirective } from '../step-trigger.directive';
 import { StepperComponent } from '../stepper/stepper.component';
 
 const ANIMATION_DURATION = 256;
@@ -51,30 +45,25 @@ export class StepComponent implements OnInit {
 	@Input() title?: string;
 
 	/** Whether this step is disabled */
-	@Input() disabled: boolean = false;
+	disabled$ = signal(false);
+	@Input()
+	set disabled(value: boolean) {
+		this.disabled$.set(value);
+	}
+	get disabled(): boolean {
+		return this.disabled$();
+	}
 
 	/** Template reference for the content of this step */
 	@ViewChild('innerTemplate', { static: true })
 	innerTemplate!: TemplateRef<any>;
-
-	/** Custom template for the step trigger */
-	@ContentChild(StepTriggerDirective, { read: TemplateRef })
-	stepTriggerTpt!: TemplateRef<any>;
-
-	/** Collection of previous step button directives */
-	@ContentChildren(PrevStepButtonDirective)
-	prevStepButtons!: QueryList<PrevStepButtonDirective>;
-
-	/** Collection of next step button directives */
-	@ContentChildren(NextStepButtonDirective)
-	nextStepButtons!: QueryList<NextStepButtonDirective>;
 
 	get animationState() {
 		return this.stepper.animationsEnabled ? '*' : 'void';
 	}
 
 	ngOnInit(): void {
-		this.validateInputs();
+		// this.validateInputs();
 	}
 
 	/**

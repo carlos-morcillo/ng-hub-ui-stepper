@@ -126,15 +126,6 @@ describe('StepperComponent', () => {
 		);
 	});
 
-	it('should disable the next button when canGoNext returns false', () => {
-		spyOn(stepperComponent, 'canGoNext').and.returnValue(false);
-		fixture.detectChanges();
-		const nextButton = fixture.debugElement.query(
-			By.css('.stepper__button--next')
-		);
-		expect(nextButton.nativeElement.disabled).toBeTrue();
-	});
-
 	it('should show submit button on last step', () => {
 		stepperComponent.goTo(2);
 		fixture.detectChanges();

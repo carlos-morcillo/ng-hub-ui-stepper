@@ -10,11 +10,14 @@ import {
 	Input,
 	Output,
 	QueryList,
+	signal,
 	TemplateRef
 } from '@angular/core';
+import { NextButtonDirective } from '../next-button.directive';
+import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
-import { StepperButtonsDirective } from '../stepper-buttons.directive';
 import { StepperNavDirective } from '../stepper-nav.directive';
+import { SubmitButtonDirective } from '../submit-button.directive';
 
 /**
  * StepperComponent is a multi-step interface component for Angular applications.
@@ -27,14 +30,18 @@ import { StepperNavDirective } from '../stepper-nav.directive';
 	styleUrls: ['./stepper.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	host: {
-		class: 'stepper d-flex flex-column overflow-auto'
+		class: 'stepper'
 	}
 })
 export class StepperComponent implements AfterContentInit {
 	#cdr = inject(ChangeDetectorRef);
 
 	/** The index of the current active step */
-	currentIndex: number = 0;
+	currentIndex$ = signal(0);
+
+	get currentIndex(): number {
+		return this.currentIndex$();
+	}
 
 	/** Label for the back button */
 	@Input() backLabel: string = 'Back';
@@ -61,9 +68,14 @@ export class StepperComponent implements AfterContentInit {
 	@ContentChild(StepperNavDirective, { read: TemplateRef })
 	stepperNavTpt?: TemplateRef<any>;
 
-	/** Custom template for stepper controls */
-	@ContentChild(StepperButtonsDirective, { read: TemplateRef })
-	stepperControlsTpt?: TemplateRef<any>;
+	@ContentChild(PreviousButtonDirective)
+	previousButton?: PreviousButtonDirective;
+
+	@ContentChild(NextButtonDirective)
+	nextButton?: NextButtonDirective;
+
+	@ContentChild(SubmitButtonDirective)
+	submitButton?: SubmitButtonDirective;
 
 	@Input() animationsEnabled: boolean = true;
 
@@ -104,8 +116,8 @@ export class StepperComponent implements AfterContentInit {
 	 * @param index The index of the step to navigate to
 	 */
 	goTo(index: number): void {
-		if (this.isValidStepIndex(index)) {
-			this.currentIndex = index;
+		if (this.isStepIndexInBounds(index)) {
+			this.currentIndex$.set(index);
 			this.#cdr.detectChanges();
 			if (index > this.currentIndex) {
 				this.nextStep.emit(index);
@@ -118,25 +130,11 @@ export class StepperComponent implements AfterContentInit {
 	}
 
 	/**
-	 * Check if it's possible to navigate to the next step
-	 */
-	canGoNext(): boolean {
-		const nextIndex = this.currentIndex + 1;
-		return (
-			this.isValidStepIndex(nextIndex) &&
-			!this.steps.toArray()[nextIndex]?.disabled
-		);
-	}
-
-	/**
 	 * Check if it's possible to navigate to a specific step
 	 * @param index The index of the step to check
 	 */
 	canNavigateTo(index: number): boolean {
-		return (
-			this.isValidStepIndex(index) &&
-			!this.steps.toArray()[index]?.disabled
-		);
+		return this.isStepIndexInBounds(index) && this.isValidStepIndex(index);
 	}
 
 	/**
@@ -147,10 +145,26 @@ export class StepperComponent implements AfterContentInit {
 	}
 
 	/**
-	 * Check if a given index is valid within the current steps
-	 * @param index The index to validate
+	 * Checks if a step at a given index is not disabled.
+	 *
+	 * @param {number} index - The `index` parameter is a number representing the index of a step in a collection of steps.
+	 *
+	 * @returns A boolean value. It checks if the step at the given index is not disabled, and returns `true` if it is a valid step
+	 * index, and `false` if it is not a valid step index or if the step at that index is disabled.
 	 */
-	private isValidStepIndex(index: number): boolean {
+	isValidStepIndex(index: number): boolean {
+		return !this.steps.toArray()[index]?.disabled$();
+	}
+
+	/**
+	 * Checks if a given index is within the bounds of the steps array.
+	 *
+	 * @param {number} index - The `index` parameter is a number representing the step index that you want to check if it is within
+	 * the bounds of the steps array.
+	 *
+	 * @returns A boolean value indicating whether the given index is within the bounds of the steps array.
+	 */
+	isStepIndexInBounds(index: number): boolean {
 		return index >= 0 && index < this.steps.length;
 	}
 }

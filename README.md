@@ -15,6 +15,7 @@ A flexible and customizable stepper component for Angular applications. Perfect 
 	- [Customization](#customization)
 		- [CSS Variables](#css-variables)
 		- [Programmatic Customization](#programmatic-customization)
+		- [Custom Navigation Buttons](#custom-navigation-buttons)
 		- [Custom Navigation Template](#custom-navigation-template)
 	- [Examples](#examples)
 		- [Basic Usage](#basic-usage)
@@ -107,6 +108,7 @@ The stepper component can be customized using CSS variables and by providing cus
 
 ```css
 :root {
+  --stepper-direction: column;
   --stepper-primary-color: #009ef7;
   --stepper-secondary-color: #b5b5c3;
   --stepper-background-color: #f3f6f9;
@@ -136,6 +138,20 @@ export class YourComponent implements OnInit {
 ```
 
 This allows you to change the theme dynamically based on user preferences or other conditions in your application.
+
+### Custom Navigation Buttons
+You can customize the navigation buttons using the provided directives:
+
+```html
+<hub-stepper>
+  <!-- Step content -->
+  <button previousButton>Custom Back</button>
+  <button nextButton>Custom Next</button>
+  <button submitButton>Custom Submit</button>
+</hub-stepper>
+```
+
+These directives (previousButton, nextButton, and submitButton) automatically handle the navigation logic and apply default styling classes.
 
 ### Custom Navigation Template
 
