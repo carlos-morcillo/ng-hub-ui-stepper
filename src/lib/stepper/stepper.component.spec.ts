@@ -11,13 +11,14 @@ import { StepComponent } from '../step/step.component';
 import { By } from '@angular/platform-browser';
 
 @Component({
-	template: `
+    template: `
 		<hub-stepper #stepper [animationsEnabled]="animationsEnabled">
 			<hub-step title="Step 1">Content 1</hub-step>
 			<hub-step title="Step 2">Content 2</hub-step>
 			<hub-step title="Step 3">Content 3</hub-step>
 		</hub-stepper>
-	`
+	`,
+    standalone: false
 })
 class TestHostComponent {
 	@ViewChild('stepper') stepper!: StepperComponent;

@@ -1,62 +1,66 @@
 <!--begin::Nav-->
 <nav class="stepper__nav">
-	<ng-container
-		[ngTemplateOutlet]="stepperNavTpt || defaultNavTpt"
-		[ngTemplateOutletContext]="{ steps: steps, currentIndex }"
-	></ng-container>
+  <ng-container
+    [ngTemplateOutlet]="stepperNavTpt || defaultNavTpt"
+    [ngTemplateOutletContext]="{ steps: steps, currentIndex }"
+  ></ng-container>
 </nav>
 <!--end::Nav-->
 
 <!--begin::Content-->
 <div class="stepper__content">
-	<ng-container
-		[ngTemplateOutlet]="currentStep?.innerTemplate"
-	></ng-container>
+  <ng-container
+    [ngTemplateOutlet]="currentStep?.innerTemplate"
+  ></ng-container>
 </div>
 <!--end::Content-->
 
 <!--begin::Controls-->
 <div class="stepper__controls">
-	<ng-container *ngIf="currentIndex > 0">
-		<ng-content select="button[previousButton]"></ng-content>
-		<button
-			*ngIf="!previousButton"
-			(click)="goToNext()"
-			[disabled]="canNavigateTo(currentIndex - 1)"
-		>
-			{{ backLabel }}
-		</button>
-	</ng-container>
+  @if (currentIndex > 0) {
+    <ng-content select="button[previousButton]"></ng-content>
+    @if (!previousButton) {
+      <button
+        (click)="goToNext()"
+        [disabled]="canNavigateTo(currentIndex - 1)"
+        >
+        {{ backLabel }}
+      </button>
+    }
+  }
 
-	<ng-container *ngIf="currentIndex < steps.length - 1">
-		<ng-content select="button[nextButton]"></ng-content>
-		<button
-			*ngIf="!nextButton"
-			(click)="goToNext()"
-			[disabled]="canNavigateTo(currentIndex + 1)"
-		>
-			{{ continueLabel }}
-		</button>
-	</ng-container>
+  @if (currentIndex < steps.length - 1) {
+    <ng-content select="button[nextButton]"></ng-content>
+    @if (!nextButton) {
+      <button
+        (click)="goToNext()"
+        [disabled]="canNavigateTo(currentIndex + 1)"
+        >
+        {{ continueLabel }}
+      </button>
+    }
+  }
 
-	<ng-container *ngIf="currentIndex === steps.length - 1">
-		<ng-content select="button[submitButton]"></ng-content>
-		<button
-			*ngIf="!submitButton"
-			(click)="complete()"
-			[disabled]="!isValidStepIndex(currentIndex)"
-		>
-			{{ submitLabel }}
-		</button>
-	</ng-container>
+  @if (currentIndex === steps.length - 1) {
+    <ng-content select="button[submitButton]"></ng-content>
+    @if (!submitButton) {
+      <button
+        (click)="complete()"
+        [disabled]="!isValidStepIndex(currentIndex)"
+        >
+        {{ submitLabel }}
+      </button>
+    }
+  }
 </div>
 <!--end::Controls-->
 
 <!-- begin:default-nav -->
 <ng-template #defaultNavTpt let-steps="steps" let-currentIndex="currentIndex">
-	<ul class="stepper__nav-list">
-		<li *ngFor="let step of steps; let i = index" class="stepper__nav-item">
-			<ng-container
+  <ul class="stepper__nav-list">
+    @for (step of steps; track step; let i = $index) {
+      <li class="stepper__nav-item">
+        <ng-container
 				[ngTemplateOutlet]="
 					step?.stepTriggerTpt || defaultNavTriggerTpt
 				"
@@ -66,29 +70,32 @@
 					isCurrent: currentIndex === i,
 					isCompleted: i < currentIndex
 				}"
-			></ng-container>
-		</li>
-	</ul>
+        ></ng-container>
+      </li>
+    }
+  </ul>
 </ng-template>
 <!-- end:default-nav -->
 
 <!-- begin:default-nav-trigger -->
 <ng-template
-	#defaultNavTriggerTpt
-	let-title="title"
-	let-index="index"
-	let-isCurrent="isCurrent"
-	let-isCompleted="isCompleted"
->
-	<button
-		class="stepper__nav-trigger"
-		[class.stepper__nav-trigger--current]="isCurrent"
-		[class.stepper__nav-trigger--completed]="isCompleted"
-		[disabled]="!canNavigateTo(index)"
-		(click)="goTo(index)"
-	>
-		<span class="stepper__nav-indicator">{{ index + 1 }}</span>
-		<span class="stepper__nav-title" *ngIf="title">{{ title }}</span>
-	</button>
+  #defaultNavTriggerTpt
+  let-title="title"
+  let-index="index"
+  let-isCurrent="isCurrent"
+  let-isCompleted="isCompleted"
+  >
+  <button
+    class="stepper__nav-trigger"
+    [class.stepper__nav-trigger--current]="isCurrent"
+    [class.stepper__nav-trigger--completed]="isCompleted"
+    [disabled]="!canNavigateTo(index)"
+    (click)="goTo(index)"
+    >
+    <span class="stepper__nav-indicator">{{ index + 1 }}</span>
+    @if (title) {
+      <span class="stepper__nav-title">{{ title }}</span>
+    }
+  </button>
 </ng-template>
 <!-- end:default-nav-trigger -->

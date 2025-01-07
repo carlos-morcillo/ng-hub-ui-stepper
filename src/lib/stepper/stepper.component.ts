@@ -25,13 +25,14 @@ import { SubmitButtonDirective } from '../submit-button.directive';
  * customization options for navigation and controls.
  */
 @Component({
-	selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
-	templateUrl: './stepper.component.html',
-	styleUrls: ['./stepper.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush,
-	host: {
-		class: 'stepper'
-	}
+    selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
+    templateUrl: './stepper.component.html',
+    styleUrls: ['./stepper.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    host: {
+        class: 'stepper'
+    },
+    standalone: false
 })
 export class StepperComponent implements AfterContentInit {
 	#cdr = inject(ChangeDetectorRef);

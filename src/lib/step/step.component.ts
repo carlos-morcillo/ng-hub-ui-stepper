@@ -13,27 +13,29 @@ import { StepperComponent } from '../stepper/stepper.component';
 const ANIMATION_DURATION = 256;
 
 @Component({
-	selector: 'hub-step, hub-ui-step, ng80-step',
-	templateUrl: './step.component.html',
-	styleUrls: ['./step.component.scss'],
-	changeDetection: ChangeDetectionStrategy.OnPush
-	// animations: [
-	// 	trigger('slideInOut', [
-	// 		transition(':enter', [
-	// 			style({ transform: 'translateX(-100%)', opacity: 0 }),
-	// 			animate(
-	// 				`${ANIMATION_DURATION}ms ${ANIMATION_DURATION}ms`,
-	// 				style({ transform: 'translateX(0%)', opacity: 1 })
-	// 			)
-	// 		]),
-	// 		transition(':leave', [
-	// 			animate(
-	// 				`${ANIMATION_DURATION}ms ease-in`,
-	// 				style({ transform: 'translateX(100%)' })
-	// 			)
-	// 		])
-	// 	])
-	// ]
+    selector: 'hub-step, hub-ui-step, ng80-step',
+    templateUrl: './step.component.html',
+    styleUrls: ['./step.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush
+    // animations: [
+    // 	trigger('slideInOut', [
+    // 		transition(':enter', [
+    // 			style({ transform: 'translateX(-100%)', opacity: 0 }),
+    // 			animate(
+    // 				`${ANIMATION_DURATION}ms ${ANIMATION_DURATION}ms`,
+    // 				style({ transform: 'translateX(0%)', opacity: 1 })
+    // 			)
+    // 		]),
+    // 		transition(':leave', [
+    // 			animate(
+    // 				`${ANIMATION_DURATION}ms ease-in`,
+    // 				style({ transform: 'translateX(100%)' })
+    // 			)
+    // 		])
+    // 	])
+    // ]
+    ,
+    standalone: false
 })
 export class StepComponent implements OnInit {
 	stepper = inject(StepperComponent);
