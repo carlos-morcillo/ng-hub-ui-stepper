@@ -1,17 +1,15 @@
 import {
-	AfterContentInit,
-	ChangeDetectionStrategy,
-	ChangeDetectorRef,
-	Component,
-	ContentChild,
-	ContentChildren,
-	EventEmitter,
-	inject,
-	Input,
-	Output,
-	QueryList,
-	signal,
-	TemplateRef
+  AfterContentInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  inject,
+  signal,
+  TemplateRef,
+  input,
+  output,
+  contentChild,
+  contentChildren
 } from '@angular/core';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
@@ -45,44 +43,40 @@ export class StepperComponent implements AfterContentInit {
 	}
 
 	/** Label for the back button */
-	@Input() backLabel: string = 'Back';
+	readonly backLabel = input<string>('Back');
 
 	/** Label for the continue button */
-	@Input() continueLabel: string = 'Continue';
+	readonly continueLabel = input<string>('Continue');
 
 	/** Label for the submit button */
-	@Input() submitLabel: string = 'Submit';
+	readonly submitLabel = input<string>('Submit');
 
 	/** Event emitted when the stepper is completed */
-	@Output() completed = new EventEmitter<void>();
+	readonly completed = output<void>();
 
 	/** Event emitted when moving to the previous step */
-	@Output() previousStep = new EventEmitter<number>();
+	readonly previousStep = output<number>();
 
 	/** Event emitted when moving to the next step */
-	@Output() nextStep = new EventEmitter<number>();
+	readonly nextStep = output<number>();
 
 	/** QueryList of all StepComponent children */
-	@ContentChildren(StepComponent) steps!: QueryList<StepComponent>;
+	readonly steps = contentChildren(StepComponent);
 
 	/** Custom template for stepper navigation */
-	@ContentChild(StepperNavDirective, { read: TemplateRef })
-	stepperNavTpt?: TemplateRef<any>;
+	readonly stepperNavTpt = contentChild(StepperNavDirective, { read: TemplateRef });
 
-	@ContentChild(PreviousButtonDirective)
-	previousButton?: PreviousButtonDirective;
+	readonly previousButton = contentChild(PreviousButtonDirective);
 
-	@ContentChild(NextButtonDirective)
-	nextButton?: NextButtonDirective;
+	readonly nextButton = contentChild(NextButtonDirective);
 
-	@ContentChild(SubmitButtonDirective)
-	submitButton?: SubmitButtonDirective;
+	readonly submitButton = contentChild(SubmitButtonDirective);
 
-	@Input() animationsEnabled: boolean = true;
+	readonly animationsEnabled = input<boolean>(true);
 
 	/** Get the current active step */
 	get currentStep(): StepComponent | null {
-		return this.steps?.toArray()[this.currentIndex] ?? null;
+		return this.steps()?.[this.currentIndex] ?? null;
 	}
 
 	ngAfterContentInit(): void {
@@ -93,7 +87,6 @@ export class StepperComponent implements AfterContentInit {
 	 * Initialize step indices and set up change detection
 	 */
 	private initializeSteps(): void {
-		this.steps.forEach((step, index) => (step.index = index));
 		// Consider using ngZone.runOutsideAngular for better performance
 		this.#cdr.detectChanges();
 	}
@@ -142,6 +135,7 @@ export class StepperComponent implements AfterContentInit {
 	 * Complete the stepper process
 	 */
 	complete(): void {
+		// TODO: The 'emit' function requires a mandatory void argument
 		this.completed.emit();
 	}
 
@@ -154,7 +148,7 @@ export class StepperComponent implements AfterContentInit {
 	 * index, and `false` if it is not a valid step index or if the step at that index is disabled.
 	 */
 	isValidStepIndex(index: number): boolean {
-		return !this.steps.toArray()[index]?.disabled$();
+		return !this.steps()?.[index]?.disabled$();
 	}
 
 	/**
@@ -166,6 +160,6 @@ export class StepperComponent implements AfterContentInit {
 	 * @returns A boolean value indicating whether the given index is within the bounds of the steps array.
 	 */
 	isStepIndexInBounds(index: number): boolean {
-		return index >= 0 && index < this.steps.length;
+		return index >= 0 && index < this.steps().length;
 	}
 }

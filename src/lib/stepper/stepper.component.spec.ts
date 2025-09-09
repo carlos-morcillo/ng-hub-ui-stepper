@@ -4,7 +4,7 @@ import {
 	fakeAsync,
 	tick
 } from '@angular/core/testing';
-import { Component, ViewChild } from '@angular/core';
+import { Component, viewChild } from '@angular/core';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { StepperComponent } from './stepper.component';
 import { StepComponent } from '../step/step.component';
@@ -21,7 +21,7 @@ import { By } from '@angular/platform-browser';
     standalone: false
 })
 class TestHostComponent {
-	@ViewChild('stepper') stepper!: StepperComponent;
+	readonly stepper = viewChild.required<StepperComponent>('stepper');
 	animationsEnabled = true;
 }
 
@@ -39,7 +39,7 @@ describe('StepperComponent', () => {
 		fixture = TestBed.createComponent(TestHostComponent);
 		component = fixture.componentInstance;
 		fixture.detectChanges();
-		stepperComponent = component.stepper;
+		stepperComponent = component.stepper();
 	});
 
 	it('should create', () => {
@@ -48,7 +48,7 @@ describe('StepperComponent', () => {
 	});
 
 	it('should initialize with the correct number of steps', () => {
-		expect(stepperComponent.steps.length).toBe(3);
+		expect(stepperComponent.steps().length).toBe(3);
 	});
 
 	it('should start at the first step', () => {
@@ -159,7 +159,7 @@ describe('StepperComponent', () => {
 	});
 
 	it('should not allow navigation to disabled steps', () => {
-		const steps = stepperComponent.steps.toArray();
+		const steps = stepperComponent.steps;
 		steps[1].disabled = true;
 		fixture.detectChanges();
 
@@ -170,20 +170,21 @@ describe('StepperComponent', () => {
 	it('should handle dynamic step addition and removal', () => {
 		const newStep = new StepComponent();
 		newStep.title = 'New Step';
-		stepperComponent.steps.reset([
-			...stepperComponent.steps.toArray(),
+		const steps = stepperComponent.steps();
+  stepperComponent.steps().reset([
+			...steps,
 			newStep
 		]);
 		fixture.detectChanges();
 
-		expect(stepperComponent.steps.length).toBe(4);
+		expect(steps.length).toBe(4);
 
-		stepperComponent.steps.reset(
-			stepperComponent.steps.toArray().slice(0, -1)
+		steps.reset(
+			steps.slice(0, -1)
 		);
 		fixture.detectChanges();
 
-		expect(stepperComponent.steps.length).toBe(3);
+		expect(steps.length).toBe(3);
 	});
 
 	//   it('should reset to first step when resetToFirstStep is called', () => {

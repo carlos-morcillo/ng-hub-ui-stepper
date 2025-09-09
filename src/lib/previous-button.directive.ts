@@ -30,7 +30,7 @@ export class PreviousButtonDirective implements AfterContentInit {
 		effect(
 			() => {
 				const nextIndex = this.#stepper.currentIndex - 1;
-				const nextStep = this.#stepper.steps.toArray()[nextIndex];
+				const nextStep = this.#stepper.steps()?.[nextIndex];
 				this.disabled = !nextStep || nextStep.disabled;
 			},
 			{ injector: this.#injector }

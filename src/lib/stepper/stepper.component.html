@@ -1,8 +1,8 @@
 <!--begin::Nav-->
 <nav class="stepper__nav">
   <ng-container
-    [ngTemplateOutlet]="stepperNavTpt || defaultNavTpt"
-    [ngTemplateOutletContext]="{ steps: steps, currentIndex }"
+    [ngTemplateOutlet]="stepperNavTpt() || defaultNavTpt"
+    [ngTemplateOutletContext]="{ steps: steps(), currentIndex }"
   ></ng-container>
 </nav>
 <!--end::Nav-->
@@ -19,36 +19,36 @@
 <div class="stepper__controls">
   @if (currentIndex > 0) {
     <ng-content select="button[previousButton]"></ng-content>
-    @if (!previousButton) {
+    @if (!previousButton()) {
       <button
         (click)="goToNext()"
         [disabled]="canNavigateTo(currentIndex - 1)"
         >
-        {{ backLabel }}
+        {{ backLabel() }}
       </button>
     }
   }
 
-  @if (currentIndex < steps.length - 1) {
+  @if (currentIndex < steps().length - 1) {
     <ng-content select="button[nextButton]"></ng-content>
-    @if (!nextButton) {
+    @if (!nextButton()) {
       <button
         (click)="goToNext()"
         [disabled]="canNavigateTo(currentIndex + 1)"
         >
-        {{ continueLabel }}
+        {{ continueLabel() }}
       </button>
     }
   }
 
-  @if (currentIndex === steps.length - 1) {
+  @if (currentIndex === steps().length - 1) {
     <ng-content select="button[submitButton]"></ng-content>
-    @if (!submitButton) {
+    @if (!submitButton()) {
       <button
         (click)="complete()"
         [disabled]="!isValidStepIndex(currentIndex)"
         >
-        {{ submitLabel }}
+        {{ submitLabel() }}
       </button>
     }
   }

@@ -1,12 +1,13 @@
 import {
-	ChangeDetectionStrategy,
-	Component,
-	inject,
-	Input,
-	OnInit,
-	signal,
-	TemplateRef,
-	ViewChild
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  Input,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+  input
 } from '@angular/core';
 import { StepperComponent } from '../stepper/stepper.component';
 
@@ -41,13 +42,15 @@ export class StepComponent implements OnInit {
 	stepper = inject(StepperComponent);
 
 	/** The index of this step in the stepper */
-	@Input() index!: number;
+	readonly index = input.required<number>();
 
 	/** The title of this step */
-	@Input() title?: string;
+	readonly title = input<string>();
 
 	/** Whether this step is disabled */
 	disabled$ = signal(false);
+	// TODO: Skipped for migration because:
+	//  Accessor inputs cannot be migrated as they are too complex.
 	@Input()
 	set disabled(value: boolean) {
 		this.disabled$.set(value);
@@ -61,7 +64,7 @@ export class StepComponent implements OnInit {
 	innerTemplate!: TemplateRef<any>;
 
 	get animationState() {
-		return this.stepper.animationsEnabled ? '*' : 'void';
+		return this.stepper.animationsEnabled() ? '*' : 'void';
 	}
 
 	ngOnInit(): void {
@@ -72,10 +75,10 @@ export class StepComponent implements OnInit {
 	 * Validates the inputs to ensure the component is properly configured
 	 */
 	private validateInputs(): void {
-		if (this.index === undefined) {
+		if (this.index() === undefined) {
 			console.warn('StepComponent: index is required');
 		}
-		if (!this.title) {
+		if (!this.title()) {
 			console.warn(
 				'StepComponent: title is recommended for accessibility'
 			);
