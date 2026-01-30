@@ -10,7 +10,7 @@
 <!--begin::Content-->
 <div class="stepper__content">
   <ng-container
-    [ngTemplateOutlet]="currentStep?.innerTemplate"
+    [ngTemplateOutlet]="currentStep?.innerTemplate()"
   ></ng-container>
 </div>
 <!--end::Content-->

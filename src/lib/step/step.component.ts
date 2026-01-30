@@ -6,8 +6,8 @@ import {
   OnInit,
   signal,
   TemplateRef,
-  ViewChild,
-  input
+  input,
+  viewChild
 } from '@angular/core';
 import { StepperComponent } from '../stepper/stepper.component';
 
@@ -60,8 +60,7 @@ export class StepComponent implements OnInit {
 	}
 
 	/** Template reference for the content of this step */
-	@ViewChild('innerTemplate', { static: true })
-	innerTemplate!: TemplateRef<any>;
+	readonly innerTemplate = viewChild.required<TemplateRef<any>>('innerTemplate');
 
 	get animationState() {
 		return this.stepper.animationsEnabled() ? '*' : 'void';

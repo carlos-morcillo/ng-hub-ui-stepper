@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { StepTriggerDirective } from './step-trigger.directive';
 import { StepComponent } from './step/step.component';
 import { StepperNavDirective } from './stepper-nav.directive';
