@@ -1,8 +1,9 @@
+/** English dictionary for default stepper action labels. */
 export const locale = {
 	lang: 'en',
 	data: {
-		BACK: 'anterior',
-		CONTINUE: 'siguiente',
-		SUBMIT: 'send'
+		BACK: 'back',
+		CONTINUE: 'continue',
+		SUBMIT: 'submit'
 	}
 };

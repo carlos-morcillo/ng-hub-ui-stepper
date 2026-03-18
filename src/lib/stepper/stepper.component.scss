@@ -1,52 +1,331 @@
 :host {
-	--stepper-direction: column;
-	--stepper-primary-color: #009ef7;
-	--stepper-secondary-color: #b5b5c3;
-	--stepper-background-color: #f3f6f9;
-	--stepper-text-color: #181c32;
-	--stepper-disabled-color: #e1e3ea;
+	/* Default design tokens for the stepper component. */
+	--hub-stepper-primary-color: var(--hub-sys-color-primary, #009ef7);
+	--hub-stepper-background-color: var(--hub-sys-surface-elevated, #f3f6f9);
+	--hub-stepper-text-color: var(--hub-sys-text-primary, #181c32);
+	--hub-stepper-border-color: var(--hub-sys-border-color-default, #d8dde6);
+	--hub-stepper-surface-color: var(--hub-sys-surface-page, #ffffff);
+	--hub-stepper-nav-bg: var(--hub-sys-surface-page, transparent);
+	--hub-stepper-nav-padding: 0;
+	--hub-stepper-nav-border-width: 0;
+	--hub-stepper-nav-border-color: var(--hub-sys-border-color-default, #dee2e6);
+	--hub-stepper-nav-link-color: var(--hub-sys-text-primary, #495057);
+	--hub-stepper-nav-link-hover-color: var(--hub-sys-link-hover-color, #0d6efd);
+	--hub-stepper-nav-link-hover-bg: var(--hub-sys-state-hover-bg, #f8f9fa);
+	--hub-stepper-nav-link-active-color: var(--hub-ref-color-white, #ffffff);
+	--hub-stepper-nav-link-active-bg: var(--hub-sys-color-primary, #0d6efd);
+	--hub-stepper-nav-link-active-border-color: var(--hub-sys-color-primary, #0d6efd);
+	--hub-stepper-nav-link-disabled-color: var(--hub-sys-text-muted, #adb5bd);
+	--hub-stepper-gap: var(--hub-ref-space-3, 1rem);
+	--hub-stepper-nav-gap: var(--hub-ref-space-1, 0.25rem);
+	--hub-stepper-nav-trigger-gap: var(--hub-ref-space-1, 0.25rem);
+	--hub-stepper-nav-trigger-padding-y: var(--hub-ref-space-2, 0.5rem);
+	--hub-stepper-nav-trigger-padding-x: var(--hub-ref-space-3, 0.75rem);
+	--hub-stepper-nav-trigger-font-size: var(--hub-ref-font-size-sm, 0.875rem);
+	--hub-stepper-nav-trigger-line-height: var(--hub-ref-line-height-sm, 1.2);
+	--hub-stepper-controls-justify: flex-end;
+	--hub-stepper-controls-gap: var(--hub-ref-space-2, 0.5rem);
+	--hub-stepper-control-padding-y: 0.375rem;
+	--hub-stepper-control-padding-x: var(--hub-ref-space-3, 0.75rem);
+	--hub-stepper-control-font-size: var(--hub-ref-font-size-sm, 0.875rem);
+	--hub-stepper-control-line-height: var(--hub-ref-line-height-sm, 1.25);
+	--hub-stepper-disabled-opacity: var(--hub-sys-opacity-50, 0.5);
+	--hub-stepper-sidebar-min-width: 160px;
+	--hub-stepper-sidebar-ideal-width: 20vw;
+	--hub-stepper-sidebar-max-width: 240px;
+	--hub-stepper-sidebar-width: clamp(
+		var(--hub-stepper-sidebar-min-width),
+		var(--hub-stepper-sidebar-ideal-width),
+		var(--hub-stepper-sidebar-max-width)
+	);
+	--hub-stepper-content-padding: 0;
+	--hub-stepper-content-border-width: 0;
+	--hub-stepper-animation-duration: var(--hub-sys-transition-duration-base, 260ms);
+	--hub-stepper-animation-easing: var(--hub-sys-transition-timing-function-base, ease);
+	--hub-stepper-animation-distance: var(--hub-ref-space-4, 18px);
 
-	display: flex;
-	flex-direction: var(--stepper-direction);
-	overflow: auto;
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-areas:
+		'nav'
+		'content'
+		'controls';
+	grid-template-rows: auto 1fr auto;
+	gap: var(--hub-stepper-gap);
+	width: 100%;
 }
 
+/* Default layout places nav, content and footer in vertical order. */
+:host.stepper--layout-vertical {
+	grid-template-columns: 1fr;
+	grid-template-areas:
+		'nav'
+		'content'
+		'controls';
+	grid-template-rows: auto 1fr auto;
+}
+
+/* Sidebar layout: nav on the left, content+footer stacked on the right. */
+:host.stepper--layout-sidebar {
+	grid-template-columns: var(--hub-stepper-sidebar-width) minmax(0, 1fr);
+	grid-template-areas:
+		'nav content'
+		'nav controls';
+	grid-template-rows: 1fr auto;
+	align-items: stretch;
+}
+
+/* Base layout and spacing rules for all stepper sections. */
 .stepper {
 	&__nav {
-		background-color: var(--stepper-background-color);
+		grid-area: nav;
+		background-color: var(--hub-stepper-nav-bg);
+		border: var(--hub-stepper-nav-border-width) solid var(--hub-stepper-nav-border-color);
+		border-radius: var(--hub-ref-radius-md, 0.5rem);
+		padding: var(--hub-stepper-nav-padding);
+		overflow-x: auto;
+	}
+
+	&__nav-list {
+		list-style: none;
+		display: flex;
+		gap: var(--hub-stepper-nav-gap);
+		padding: 0;
+		margin: 0;
+		min-width: max-content;
+	}
+
+	&__nav-item {
+		flex: 0 0 auto;
 	}
 
 	&__nav-trigger {
-		color: var(--stepper-text-color);
+		display: inline-flex;
+		align-items: center;
+		gap: var(--hub-stepper-nav-trigger-gap);
+		border: 1px solid transparent;
+		border-radius: 999px;
+		background-color: transparent;
+		padding: var(--hub-stepper-nav-trigger-padding-y) var(--hub-stepper-nav-trigger-padding-x);
+		cursor: pointer;
+		color: var(--hub-stepper-nav-link-color);
+		font-size: var(--hub-stepper-nav-trigger-font-size);
+		line-height: var(--hub-stepper-nav-trigger-line-height);
+
+		&:hover:not(:disabled) {
+			color: var(--hub-stepper-nav-link-hover-color);
+			background-color: var(--hub-stepper-nav-link-hover-bg);
+		}
 
 		&--current {
-			color: var(--stepper-primary-color);
+			border-color: var(--hub-stepper-nav-link-active-border-color);
+			background-color: var(--hub-stepper-nav-link-active-bg);
+			color: var(--hub-stepper-nav-link-active-color);
 		}
 
 		&--completed {
-			color: var(--stepper-secondary-color);
+			color: var(--hub-stepper-nav-link-color);
 		}
 
 		&:disabled {
-			color: var(--stepper-disabled-color);
+			color: var(--hub-stepper-nav-link-disabled-color);
+			cursor: not-allowed;
 		}
+	}
+
+	&__content {
+		grid-area: content;
+		border: var(--hub-stepper-content-border-width) solid var(--hub-stepper-border-color);
+		border-radius: var(--hub-ref-radius-md, 0.5rem);
+		background-color: var(--hub-stepper-surface-color);
+		padding: var(--hub-stepper-content-padding);
+		min-width: 0;
+		position: relative;
+		overflow: hidden;
+	}
+
+	&__content-panel {
+		will-change: transform, opacity;
+	}
+
+	&__controls {
+		grid-area: controls;
+		display: flex;
+		gap: var(--hub-stepper-controls-gap);
+		align-items: center;
+		justify-content: var(--hub-stepper-controls-justify);
+	}
+
+	/* Normalize projected action buttons when examples do not add custom classes. */
+	&__controls :is(button[previousButton], button[nextButton], button[submitButton], .stepper__button) {
+		border: 1px solid var(--hub-stepper-border-color);
+		border-radius: var(--hub-ref-radius-md, 0.375rem);
+		padding: var(--hub-stepper-control-padding-y) var(--hub-stepper-control-padding-x);
+		font-size: var(--hub-stepper-control-font-size);
+		line-height: var(--hub-stepper-control-line-height);
+		cursor: pointer;
+		background-color: var(--hub-stepper-surface-color);
+		color: var(--hub-stepper-text-color);
 	}
 
 	&__button {
 		&--back {
-			background-color: var(--stepper-background-color);
-			color: var(--stepper-text-color);
+			background-color: var(--hub-stepper-background-color);
+			color: var(--hub-stepper-text-color);
 		}
 
 		&--next,
 		&--submit {
-			background-color: var(--stepper-primary-color);
-			color: var(--stepper-background-color);
+			background-color: var(--hub-stepper-primary-color);
+			border-color: var(--hub-stepper-primary-color);
+			color: var(--hub-ref-color-white, #ffffff);
 		}
 
 		&:disabled {
-			opacity: 0.5;
+			opacity: var(--hub-stepper-disabled-opacity);
 			cursor: not-allowed;
 		}
 	}
+
+	/* Keep projected directive buttons visually aligned with fallback buttons. */
+	&__controls button[nextButton],
+	&__controls button[submitButton] {
+		background-color: var(--hub-stepper-primary-color);
+		border-color: var(--hub-stepper-primary-color);
+		color: var(--hub-ref-color-white, #ffffff);
+	}
+
+	&__controls button[previousButton] {
+		background-color: var(--hub-stepper-background-color);
+	}
+
+	&__controls :is(button[previousButton], button[nextButton], button[submitButton]):disabled {
+		opacity: var(--hub-stepper-disabled-opacity);
+		cursor: not-allowed;
+	}
+}
+
+/* Sidebar-specific nav behavior. */
+:host.stepper--layout-sidebar .stepper__nav {
+	height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+}
+
+:host.stepper--layout-sidebar .stepper__nav-list {
+	flex-direction: column;
+	align-items: stretch;
+}
+
+:host.stepper--layout-sidebar .stepper__nav-item {
+	width: 100%;
+}
+
+:host.stepper--layout-sidebar .stepper__nav-trigger {
+	width: 100%;
+	justify-content: flex-start;
+}
+
+/* RTL mode support configured through stepper options. */
+:host.stepper--rtl {
+	direction: rtl;
+}
+
+:host.stepper--rtl .stepper__nav-list {
+	flex-direction: row;
+}
+
+:host.stepper--rtl.stepper--layout-sidebar .stepper__nav-list {
+	flex-direction: column;
+}
+
+:host.stepper--rtl.stepper--layout-sidebar .stepper__nav-trigger {
+	justify-content: flex-end;
+	text-align: right;
+}
+
+.stepper__button-icon {
+	display: inline-flex;
+	align-items: center;
+	line-height: 1;
+}
+
+/* Content transition classes driven by host classes and CSS variables. */
+.stepper__content--animated.stepper__content--animating .stepper__content-panel {
+	animation-duration: var(--hub-stepper-animation-duration);
+	animation-timing-function: var(--hub-stepper-animation-easing);
+	animation-fill-mode: both;
+}
+
+:host.stepper--animated.stepper--anim-fade .stepper__content--animating .stepper__content-panel {
+	animation-name: stepper-fade-in;
+}
+
+:host.stepper--animated:not(.stepper--anim-fade) .stepper__content--animating.stepper__content--forward .stepper__content-panel,
+:host.stepper--animated.stepper--anim-slide .stepper__content--animating.stepper__content--forward .stepper__content-panel {
+	animation-name: stepper-slide-in-forward;
+}
+
+:host.stepper--animated:not(.stepper--anim-fade) .stepper__content--animating.stepper__content--backward .stepper__content-panel,
+:host.stepper--animated.stepper--anim-slide .stepper__content--animating.stepper__content--backward .stepper__content-panel {
+	animation-name: stepper-slide-in-backward;
+}
+
+@keyframes stepper-fade-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes stepper-slide-in-forward {
+	from {
+		opacity: 0;
+		transform: translateX(var(--hub-stepper-animation-distance));
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+@keyframes stepper-slide-in-backward {
+	from {
+		opacity: 0;
+		transform: translateX(calc(-1 * var(--hub-stepper-animation-distance)));
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* Ensure projected action buttons keep the component visual style. */
+:host ::ng-deep button.stepper__button {
+	border: 1px solid var(--hub-stepper-border-color);
+	border-radius: var(--hub-ref-radius-md, 0.375rem);
+	padding: var(--hub-stepper-control-padding-y) var(--hub-stepper-control-padding-x);
+	font-size: var(--hub-stepper-control-font-size);
+	line-height: var(--hub-stepper-control-line-height);
+	cursor: pointer;
+	background-color: var(--hub-stepper-surface-color);
+	color: var(--hub-stepper-text-color);
+}
+
+:host ::ng-deep button.stepper__button--back {
+	background-color: var(--hub-stepper-background-color);
+}
+
+:host ::ng-deep button.stepper__button--next,
+:host ::ng-deep button.stepper__button--submit {
+	background-color: var(--hub-stepper-primary-color);
+	border-color: var(--hub-stepper-primary-color);
+	color: var(--hub-ref-color-white, #ffffff);
+}
+
+:host ::ng-deep button.stepper__button:disabled {
+	opacity: var(--hub-stepper-disabled-opacity);
+	cursor: not-allowed;
 }

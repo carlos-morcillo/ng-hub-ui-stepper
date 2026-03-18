@@ -3,6 +3,8 @@ import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
+  ElementRef,
+  OnDestroy,
   inject,
   signal,
   TemplateRef,
@@ -11,111 +13,179 @@ import {
   contentChild,
   contentChildren
 } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
+import { TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
 import { StepperNavDirective } from '../stepper-nav.directive';
 import { SubmitButtonDirective } from '../submit-button.directive';
+import { StepperLayout, StepperOptions } from './stepper-options';
 
 /**
- * StepperComponent is a multi-step interface component for Angular applications.
- * It manages navigation between steps, handles step content, and provides
- * customization options for navigation and controls.
+ * Renders and controls a multi-step workflow.
+ * It coordinates navigation, state transitions and projected templates for steps and controls.
  */
 @Component({
     selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
     templateUrl: './stepper.component.html',
     styleUrls: ['./stepper.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe],
     host: {
-        class: 'stepper'
-    },
-    standalone: false
+        class: 'stepper',
+		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
+		'[class.stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
+		'[class.stepper--rtl]': 'isRtl()'
+    }
 })
-export class StepperComponent implements AfterContentInit {
+export class StepperComponent implements AfterContentInit, OnDestroy {
 	#cdr = inject(ChangeDetectorRef);
+	#hostRef = inject(ElementRef<HTMLElement>);
+	#animationFrameId: number | null = null;
 
-	/** The index of the current active step */
+	/** Exposes layout enum values to the template. */
+	readonly StepperLayout = StepperLayout;
+
+	/** Stores the index of the currently active step. */
 	currentIndex$ = signal(0);
 
+	/** Stores whether content transition animation is currently running. */
+	contentAnimating$ = signal(false);
+
+	/** Stores transition direction used by the CSS animation classes. */
+	animationDirection$ = signal<'forward' | 'backward'>('forward');
+
+	/** Returns the index of the currently active step. */
 	get currentIndex(): number {
 		return this.currentIndex$();
 	}
 
-	/** Label for the back button */
-	readonly backLabel = input<string>('Back');
+	/** Optional custom label for the back button. */
+	readonly backLabel = input<string | null>(null);
 
-	/** Label for the continue button */
-	readonly continueLabel = input<string>('Continue');
+	/** Optional custom label for the continue button. */
+	readonly continueLabel = input<string | null>(null);
 
-	/** Label for the submit button */
-	readonly submitLabel = input<string>('Submit');
+	/** Optional custom label for the submit button. */
+	readonly submitLabel = input<string | null>(null);
 
-	/** Event emitted when the stepper is completed */
+	/** Emits once the user completes the last step. */
 	readonly completed = output<void>();
 
-	/** Event emitted when moving to the previous step */
+	/** Emits the new index when moving to the previous step. */
 	readonly previousStep = output<number>();
 
-	/** Event emitted when moving to the next step */
+	/** Emits the new index when moving to the next step. */
 	readonly nextStep = output<number>();
 
-	/** QueryList of all StepComponent children */
+	/** Content-projected step definitions. */
 	readonly steps = contentChildren(StepComponent);
 
-	/** Custom template for stepper navigation */
+	/** Optional content-projected template for custom navigation. */
 	readonly stepperNavTpt = contentChild(StepperNavDirective, { read: TemplateRef });
 
+	/** Optional custom projected previous button. */
 	readonly previousButton = contentChild(PreviousButtonDirective);
 
+	/** Optional custom projected next button. */
 	readonly nextButton = contentChild(NextButtonDirective);
 
+	/** Optional custom projected submit button. */
 	readonly submitButton = contentChild(SubmitButtonDirective);
 
-	readonly animationsEnabled = input<boolean>(true);
+	/**
+	 * Optional visual and layout configuration for the stepper container.
+	 */
+	readonly options = input<StepperOptions>({});
 
-	/** Get the current active step */
+	/**
+	 * Returns the active layout mode.
+	 *
+	 * @returns The configured layout or the vertical default.
+	 */
+	layout(): StepperLayout {
+		return this.options()?.layout ?? StepperLayout.Vertical;
+	}
+
+	/**
+	 * Returns whether right-to-left mode is enabled.
+	 *
+	 * @returns `true` when RTL mode is active.
+	 */
+	isRtl(): boolean {
+		return this.options()?.rtl ?? false;
+	}
+
+	/** Returns the active step component instance or `null` when unavailable. */
 	get currentStep(): StepComponent | null {
 		return this.steps()?.[this.currentIndex] ?? null;
 	}
 
+	/** Returns whether host classes enable animated transitions. */
+	hasAnimationClass(): boolean {
+		return this.#hostRef.nativeElement.classList.contains('stepper--animated');
+	}
+
+	/** Returns whether transition direction is forward. */
+	isForwardAnimation(): boolean {
+		return this.animationDirection$() === 'forward';
+	}
+
+	/** Returns whether transition direction is backward. */
+	isBackwardAnimation(): boolean {
+		return this.animationDirection$() === 'backward';
+	}
+
+	/** Initializes projected step metadata after content projection. */
 	ngAfterContentInit(): void {
 		this.initializeSteps();
 	}
 
+	/** Clears pending animation frame callbacks on component destroy. */
+	ngOnDestroy(): void {
+		this.clearAnimationFrame();
+	}
+
 	/**
-	 * Initialize step indices and set up change detection
+	 * Triggers initial change detection for projected steps.
 	 */
 	private initializeSteps(): void {
-		// Consider using ngZone.runOutsideAngular for better performance
 		this.#cdr.detectChanges();
 	}
 
 	/**
-	 * Navigate to the previous step
+	 * Navigates to the previous step index.
 	 */
 	goToPrevious(): void {
 		this.goTo(this.currentIndex - 1);
 	}
 
 	/**
-	 * Navigate to the next step
+	 * Navigates to the next step index.
 	 */
 	goToNext(): void {
 		this.goTo(this.currentIndex + 1);
 	}
 
 	/**
-	 * Navigate to a specific step by index
-	 * @param index The index of the step to navigate to
+	 * Navigates to a specific step index when it is valid.
+	 *
+	 * @param index Target step index.
 	 */
 	goTo(index: number): void {
 		if (this.isStepIndexInBounds(index)) {
+			const previousIndex = this.currentIndex;
+			if (index === previousIndex) {
+				return;
+			}
+			this.animationDirection$.set(index > previousIndex ? 'forward' : 'backward');
 			this.currentIndex$.set(index);
+			this.playContentTransition();
 			this.#cdr.detectChanges();
-			if (index > this.currentIndex) {
+			if (index > previousIndex) {
 				this.nextStep.emit(index);
-			} else {
+			} else if (index < previousIndex) {
 				this.previousStep.emit(index);
 			}
 		} else {
@@ -124,42 +194,77 @@ export class StepperComponent implements AfterContentInit {
 	}
 
 	/**
-	 * Check if it's possible to navigate to a specific step
-	 * @param index The index of the step to check
+	 * Returns whether the target step can be activated.
+	 *
+	 * @param index Target step index.
+	 * @returns `true` when index is in bounds and the step is not disabled.
 	 */
 	canNavigateTo(index: number): boolean {
 		return this.isStepIndexInBounds(index) && this.isValidStepIndex(index);
 	}
 
 	/**
-	 * Complete the stepper process
+	 * Completes the stepper workflow and emits the completion event.
 	 */
 	complete(): void {
-		// TODO: The 'emit' function requires a mandatory void argument
 		this.completed.emit();
 	}
 
 	/**
-	 * Checks if a step at a given index is not disabled.
+	 * Returns whether a step at the provided index is enabled.
 	 *
-	 * @param {number} index - The `index` parameter is a number representing the index of a step in a collection of steps.
-	 *
-	 * @returns A boolean value. It checks if the step at the given index is not disabled, and returns `true` if it is a valid step
-	 * index, and `false` if it is not a valid step index or if the step at that index is disabled.
+	 * @param index Step index to validate.
+	 * @returns `true` when the step exists and is enabled.
 	 */
 	isValidStepIndex(index: number): boolean {
 		return !this.steps()?.[index]?.disabled$();
 	}
 
 	/**
-	 * Checks if a given index is within the bounds of the steps array.
+	 * Returns whether the provided index is within the steps collection bounds.
 	 *
-	 * @param {number} index - The `index` parameter is a number representing the step index that you want to check if it is within
-	 * the bounds of the steps array.
-	 *
-	 * @returns A boolean value indicating whether the given index is within the bounds of the steps array.
+	 * @param index Step index to validate.
+	 * @returns `true` when the index points to an existing step.
 	 */
 	isStepIndexInBounds(index: number): boolean {
 		return index >= 0 && index < this.steps().length;
+	}
+
+	/**
+	 * Starts and schedules the content transition animation lifecycle.
+	 */
+	private playContentTransition(): void {
+		this.clearAnimationFrame();
+		this.contentAnimating$.set(false);
+		if (!this.hasAnimationClass()) {
+			return;
+		}
+		this.#animationFrameId = globalThis.requestAnimationFrame(() => {
+			this.contentAnimating$.set(true);
+			this.#cdr.detectChanges();
+		});
+	}
+
+	/**
+	 * Clears the pending animation frame used to trigger content transitions.
+	 */
+	private clearAnimationFrame(): void {
+		if (this.#animationFrameId !== null) {
+			globalThis.cancelAnimationFrame(this.#animationFrameId);
+			this.#animationFrameId = null;
+		}
+	}
+
+	/**
+	 * Handles animation end events and resets the active transition state.
+	 *
+	 * @param event DOM animation end event.
+	 */
+	onContentAnimationEnd(event: AnimationEvent): void {
+		if (event.target !== event.currentTarget) {
+			return;
+		}
+		this.contentAnimating$.set(false);
+		this.#cdr.detectChanges();
 	}
 }

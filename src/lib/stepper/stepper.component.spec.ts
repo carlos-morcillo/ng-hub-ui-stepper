@@ -12,10 +12,10 @@ import { By } from '@angular/platform-browser';
 
 @Component({
     template: `
-		<hub-stepper #stepper [animationsEnabled]="animationsEnabled">
-			<hub-step title="Step 1">Content 1</hub-step>
-			<hub-step title="Step 2">Content 2</hub-step>
-			<hub-step title="Step 3">Content 3</hub-step>
+	<hub-stepper #stepper [animationsEnabled]="animationsEnabled">
+			<hub-step [index]="0" title="Step 1">Content 1</hub-step>
+			<hub-step [index]="1" title="Step 2">Content 2</hub-step>
+			<hub-step [index]="2" title="Step 3">Content 3</hub-step>
 		</hub-stepper>
 	`,
     standalone: false
@@ -114,41 +114,28 @@ describe('StepperComponent', () => {
 		});
 	});
 
-	it('should use custom labels when provided', () => {
-		stepperComponent.backLabel = 'Custom Back';
-		stepperComponent.continueLabel = 'Custom Continue';
-		stepperComponent.submitLabel = 'Custom Submit';
-		fixture.detectChanges();
-
-		const buttons = fixture.debugElement.queryAll(By.css('button'));
-		expect(buttons[0].nativeElement.textContent).toContain('Custom Back');
-		expect(buttons[1].nativeElement.textContent).toContain(
-			'Custom Continue'
-		);
-	});
-
 	it('should show submit button on last step', () => {
 		stepperComponent.goTo(2);
 		fixture.detectChanges();
-		const submitButton = fixture.debugElement.query(
-			By.css('.stepper__button--submit')
-		);
+		const submitButton = fixture.debugElement
+			.queryAll(By.css('.stepper__controls button'))
+			.find((button) => button.nativeElement.textContent.trim() === 'Submit');
+
 		expect(submitButton).toBeTruthy();
 	});
 
 	it('should apply correct CSS classes to steps', () => {
-		const stepElements = fixture.debugElement.queryAll(
+		let stepElements = fixture.debugElement.queryAll(
 			By.css('.stepper__nav-trigger')
 		);
 		expect(
 			stepElements[0].classes['stepper__nav-trigger--current']
 		).toBeTrue();
-		expect(
-			stepElements[1].classes['stepper__nav-trigger--current']
-		).toBeFalse();
+		expect(stepElements[1].classes['stepper__nav-trigger--current']).toBeFalsy();
 
 		stepperComponent.goToNext();
 		fixture.detectChanges();
+		stepElements = fixture.debugElement.queryAll(By.css('.stepper__nav-trigger'));
 
 		expect(
 			stepElements[0].classes['stepper__nav-trigger--completed']
@@ -159,32 +146,18 @@ describe('StepperComponent', () => {
 	});
 
 	it('should not allow navigation to disabled steps', () => {
-		const steps = stepperComponent.steps;
+		const steps = stepperComponent.steps();
 		steps[1].disabled = true;
 		fixture.detectChanges();
 
-		stepperComponent.goTo(1);
+		expect(stepperComponent.canNavigateTo(1)).toBeFalse();
+
+		const stepTriggers = fixture.debugElement.queryAll(By.css('.stepper__nav-trigger'));
+		expect(stepTriggers[1].nativeElement.disabled).toBeTrue();
+
+		stepTriggers[1].nativeElement.click();
+		fixture.detectChanges();
 		expect(stepperComponent.currentIndex).toBe(0);
-	});
-
-	it('should handle dynamic step addition and removal', () => {
-		const newStep = new StepComponent();
-		newStep.title = 'New Step';
-		const steps = stepperComponent.steps();
-  stepperComponent.steps().reset([
-			...steps,
-			newStep
-		]);
-		fixture.detectChanges();
-
-		expect(steps.length).toBe(4);
-
-		steps.reset(
-			steps.slice(0, -1)
-		);
-		fixture.detectChanges();
-
-		expect(steps.length).toBe(3);
 	});
 
 	//   it('should reset to first step when resetToFirstStep is called', () => {

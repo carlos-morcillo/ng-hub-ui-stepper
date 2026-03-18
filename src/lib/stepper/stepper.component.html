@@ -8,10 +8,18 @@
 <!--end::Nav-->
 
 <!--begin::Content-->
-<div class="stepper__content">
-  <ng-container
-    [ngTemplateOutlet]="currentStep?.innerTemplate()"
-  ></ng-container>
+<div
+  class="stepper__content"
+  [class.stepper__content--animated]="hasAnimationClass()"
+  [class.stepper__content--animating]="contentAnimating$()"
+  [class.stepper__content--forward]="isForwardAnimation()"
+  [class.stepper__content--backward]="isBackwardAnimation()"
+>
+  <div class="stepper__content-panel" (animationend)="onContentAnimationEnd($event)">
+    <ng-container
+      [ngTemplateOutlet]="currentStep?.innerTemplate()"
+    ></ng-container>
+  </div>
 </div>
 <!--end::Content-->
 
@@ -21,10 +29,16 @@
     <ng-content select="button[previousButton]"></ng-content>
     @if (!previousButton()) {
       <button
-        (click)="goToNext()"
-        [disabled]="canNavigateTo(currentIndex - 1)"
+        class="stepper__button stepper__button--back"
+        (click)="goToPrevious()"
+        [disabled]="!canNavigateTo(currentIndex - 1)"
         >
-        {{ backLabel() }}
+        @if (isRtl()) {
+          <span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
+        } @else {
+          <span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
+        }
+        {{ backLabel() ?? ('BACK' | translate | ucfirst) }}
       </button>
     }
   }
@@ -33,10 +47,16 @@
     <ng-content select="button[nextButton]"></ng-content>
     @if (!nextButton()) {
       <button
+        class="stepper__button stepper__button--next"
         (click)="goToNext()"
-        [disabled]="canNavigateTo(currentIndex + 1)"
+        [disabled]="!canNavigateTo(currentIndex + 1)"
         >
-        {{ continueLabel() }}
+        {{ continueLabel() ?? ('CONTINUE' | translate | ucfirst) }}
+        @if (isRtl()) {
+          <span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
+        } @else {
+          <span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
+        }
       </button>
     }
   }
@@ -45,10 +65,11 @@
     <ng-content select="button[submitButton]"></ng-content>
     @if (!submitButton()) {
       <button
+        class="stepper__button stepper__button--submit"
         (click)="complete()"
         [disabled]="!isValidStepIndex(currentIndex)"
         >
-        {{ submitLabel() }}
+        {{ submitLabel() ?? ('SUBMIT' | translate | ucfirst) }}
       </button>
     }
   }
@@ -58,14 +79,14 @@
 <!-- begin:default-nav -->
 <ng-template #defaultNavTpt let-steps="steps" let-currentIndex="currentIndex">
   <ul class="stepper__nav-list">
-    @for (step of steps; track step; let i = $index) {
+    @for (step of steps; track $index; let i = $index) {
       <li class="stepper__nav-item">
         <ng-container
 				[ngTemplateOutlet]="
-					step?.stepTriggerTpt || defaultNavTriggerTpt
+					defaultNavTriggerTpt
 				"
 				[ngTemplateOutletContext]="{
-					title: step.title,
+					title: step.title(),
 					index: i,
 					isCurrent: currentIndex === i,
 					isCompleted: i < currentIndex
@@ -92,9 +113,10 @@
     [disabled]="!canNavigateTo(index)"
     (click)="goTo(index)"
     >
-    <span class="stepper__nav-indicator">{{ index + 1 }}</span>
     @if (title) {
       <span class="stepper__nav-title">{{ title }}</span>
+    } @else {
+      <span class="stepper__nav-title">Step {{ index + 1 }}</span>
     }
   </button>
 </ng-template>

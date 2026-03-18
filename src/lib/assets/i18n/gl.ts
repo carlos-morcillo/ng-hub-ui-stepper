@@ -1,6 +1,6 @@
-/** Castilian dictionary for default stepper action labels. */
+/** Galician dictionary for default stepper action labels. */
 export const locale = {
-	lang: 'es',
+	lang: 'gl',
 	data: {
 		BACK: 'volver',
 		CONTINUE: 'continuar',

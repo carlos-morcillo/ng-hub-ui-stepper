@@ -1,248 +1,221 @@
 # ng-hub-ui-stepper
 
-A flexible and customizable stepper component for Angular applications. Perfect for multi-step forms, wizards, and guided user experiences.
+[![npm version](https://img.shields.io/npm/v/ng-hub-ui-stepper.svg)](https://www.npmjs.com/package/ng-hub-ui-stepper)
+[![license](https://img.shields.io/npm/l/ng-hub-ui-stepper.svg)](https://github.com/carlos-morcillo/ng-hub-ui-stepper/blob/main/LICENSE)
+
+A flexible, customizable, and accessible stepper component for Angular 21+. Perfect for multi-step forms, wizards, and guided user experiences with a focus on developer experience and modern standards.
+
+> [!IMPORTANT]
+> This version (21.1.0) is built for **Angular 21** and uses the new **Signals** architecture.
+
+## 🧩 Library Family `ng-hub-ui`
+
+This library is part of the **ng-hub-ui** ecosystem:
+
+- [**ng-hub-ui-accordion**](https://www.npmjs.com/package/ng-hub-ui-accordion)
+- [**ng-hub-ui-avatar**](https://www.npmjs.com/package/ng-hub-ui-avatar)
+- [**ng-hub-ui-board**](https://www.npmjs.com/package/ng-hub-ui-board)
+- [**ng-hub-ui-breadcrumbs**](https://www.npmjs.com/package/ng-hub-ui-breadcrumbs)
+- [**ng-hub-ui-calendar**](https://www.npmjs.com/package/ng-hub-ui-calendar)
+- [**ng-hub-ui-modal**](https://www.npmjs.com/package/ng-hub-ui-modal)
+- [**ng-hub-ui-paginable**](https://www.npmjs.com/package/ng-hub-ui-paginable)
+- [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
+- [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
+- [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils)
 
 ## Table of Contents
 
-- [ng-hub-ui-stepper](#ng-hub-ui-stepper)
-	- [Table of Contents](#table-of-contents)
-	- [Features](#features)
-	- [Installation](#installation)
-	- [Usage](#usage)
-	- [API Reference](#api-reference)
-		- [Stepper Component](#stepper-component)
-		- [Step Component](#step-component)
-	- [Customization](#customization)
-		- [CSS Variables](#css-variables)
-		- [Programmatic Customization](#programmatic-customization)
-		- [Custom Navigation Buttons](#custom-navigation-buttons)
-		- [Custom Navigation Template](#custom-navigation-template)
-	- [Examples](#examples)
-		- [Basic Usage](#basic-usage)
-		- [With Custom Navigation](#with-custom-navigation)
-	- [Contributing](#contributing)
-	- [Support the Project](#support-the-project)
-	- [Inspiration](#inspiration)
-	- [License](#license)
+- [Features](#features)
+- [Installation](#installation)
+- [Usage (Quick Start)](#usage-quick-start)
+- [Examples](#examples)
+	- [Linear Stepper](#linear-stepper)
+	- [Custom Navigation](#custom-navigation)
+	- [Custom Buttons](#custom-buttons)
+- [API Reference](#api-reference)
+	- [StepperComponent](#steppercomponent)
+	- [StepComponent](#stepcomponent)
+	- [Directives](#directives)
+	- [Interfaces](#interfaces)
+- [Styling](#styling)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Features
 
-- 🚀 Easy to integrate with existing Angular projects
-- 🎨 Highly customizable appearance and behavior
-- ♿ Accessible by default, following WCAG guidelines
-- 📱 Responsive design, works on all screen sizes
-- 🔢 Support for linear and non-linear step progression
-- 🔄 Built-in animations for smooth transitions
-- 🧩 Modular architecture for easy extension
+- 🚀 **Angular 21+ Built-in**: Uses Signals and new control flow syntax.
+- 🎨 **Highly Customizable**: Easy to theme via CSS variables and custom templates.
+- ♿ **Accessible**: Proper ARIA roles and keyboard navigation.
+- 🔢 **Multi-layout**: Supports Vertical, Sidebar, and RTL modes.
+- 🔄 **Smooth Transitions**: Built-in CSS animations.
+- 🧩 **Flexible Controls**: Use default buttons or project your own.
 
 ## Installation
-
-Install the package using npm:
 
 ```bash
 npm install ng-hub-ui-stepper
 ```
 
-## Usage
+## Usage (Quick Start)
 
-1. Import the `StepperModule` in your Angular module:
+Import the `StepperModule` in your module/component:
 
 ```typescript
 import { StepperModule } from 'ng-hub-ui-stepper';
 
-@NgModule({
+@Component({
+  standalone: true,
   imports: [StepperModule],
   // ...
 })
-export class YourModule { }
+export class YourComponent { }
 ```
 
-2. Use the stepper component in your template:
+In your template:
 
 ```html
 <hub-stepper>
-  <hub-step title="Step 1">
-	<h2>Welcome to Step 1</h2>
-	<p>This is the content of step 1.</p>
+  <hub-step [index]="0" title="Account Setup">
+    <h3>Welcome!</h3>
+    <p>Setup your account details here.</p>
   </hub-step>
-  <hub-step title="Step 2">
-	<h2>Moving on to Step 2</h2>
-	<p>Here's what you need to do in step 2.</p>
+  
+  <hub-step [index]="1" title="Personal Info">
+    <h3>Profile Data</h3>
+    <p>Tell us more about yourself.</p>
   </hub-step>
-  <hub-step title="Step 3">
-	<h2>Final Step</h2>
-	<p>Congratulations! You've reached the last step.</p>
+
+  <hub-step [index]="2" title="Review">
+    <h3>Save & Finalize</h3>
+    <p>Ready to go?</p>
   </hub-step>
+</hub-stepper>
+```
+
+## Examples
+
+### Linear Stepper
+
+Control navigation by enabling/disabling steps programmatically.
+
+```html
+<hub-stepper (completed)="onFinish()">
+  <hub-step [index]="0" title="Step 1">
+     <!-- Step 1 Content -->
+  </hub-step>
+  
+  <hub-step [index]="1" title="Step 2" [disabled]="!isStep1Valid()">
+     <!-- Step 2 Content -->
+  </hub-step>
+</hub-stepper>
+```
+
+### Custom Navigation
+
+Provide your own navigation template using the `stepperNavTpt` property.
+
+```html
+<hub-stepper>
+  <nav *stepperNav="let steps = steps; let currentIndex = currentIndex" class="my-custom-nav">
+     @for (step of steps; track step; let i = $index) {
+       <button 
+         [class.active]="i === currentIndex" 
+         (click)="goTo(i)">
+         {{ step.title() }}
+       </button>
+     }
+  </nav>
+
+  <hub-step [index]="0" title="A">...</hub-step>
+  <hub-step [index]="1" title="B">...</hub-step>
+</hub-stepper>
+```
+
+### Custom Buttons
+
+Project your own buttons to override the default footer.
+
+```html
+<hub-stepper>
+  <hub-step [index]="0">...</hub-step>
+  
+  <button previousButton class="btn-back">Go back</button>
+  <button nextButton class="btn-next">Next step</button>
+  <button submitButton class="btn-done">Complete</button>
 </hub-stepper>
 ```
 
 ## API Reference
 
-### Stepper Component
+### StepperComponent (`hub-stepper`)
 
-| Input                | Type      | Default | Description                                    |
-|----------------------|-----------|---------|------------------------------------------------|
-| `backLabel`          | string    | 'Back'  | Label for the back button                      |
-| `continueLabel`      | string    | 'Continue' | Label for the continue button               |
-| `submitLabel`        | string    | 'Submit'| Label for the submit button                    |
+| Input | Type | Default | Description |
+|---|---|---|---|
+| `backLabel` | `string` | `'Back'` | Label for the back button. |
+| `continueLabel` | `string` | `'Continue'` | Label for the continue button. |
+| `submitLabel` | `string` | `'Submit'` | Label for the submit button. |
+| `options` | `StepperOptions` | `{}` | Visual and layout configuration. |
 
-| Output     | Type                | Description                           |
-|------------|---------------------|---------------------------------------|
-| `completed`| EventEmitter<void>  | Emitted when the stepper is completed |
-| `previousStep` | EventEmitter<number> | Emitted when moving to the previous step |
-| `nextStep` | EventEmitter<number> | Emitted when moving to the next step |
+| Output | Type | Description |
+|---|---|---|
+| `completed` | `EventEmitter<void>` | Emitted when the last step is completed. |
+| `previousStep` | `EventEmitter<number>` | Emitted when moving back. Passes the new index. |
+| `nextStep` | `EventEmitter<number>` | Emitted when moving forward. Passes the new index. |
 
-### Step Component
+### StepComponent (`hub-step`)
 
-| Input     | Type    | Default | Description                        |
-|-----------|---------|--------|--------------------------------------|
-| `index`   | number  | required | The index of this step             |
-| `title`   | string  | optional | The title of this step             |
-| `disabled`| boolean | false   | Whether this step is disabled       |
+| Input | Type | Default | Description |
+|---|---|---|---|
+| `index` | `number` | `required` | Position of the step (0-indexed). |
+| `title` | `string` | `optional` | Text displayed in navigation. |
+| `disabled` | `boolean` | `false` | Prevents navigation to this step. |
 
-## Customization
+### Directives
 
-The stepper component can be customized using CSS variables and by providing custom templates for navigation and buttons.
+- `nextButton`: Apply to any button to use it as the "next" control.
+- `previousButton`: Apply to any button to use it as the "back" control.
+- `submitButton`: Apply to any button to use it as the "submit" control.
+- `stepperNav`: Mark a template to be used as custom navigation.
 
-### CSS Variables
+### Interfaces
+
+#### `StepperOptions`
+```typescript
+interface StepperOptions {
+  layout?: 'vertical' | 'sidebar';
+  rtl?: boolean;
+}
+```
+
+## Styling
+
+Customize the component using CSS variables. For a complete list of available tokens, see the [CSS Variables Reference](docs/css-variables-reference.md).
 
 ```css
-:root {
-  --stepper-direction: column;
-  --stepper-primary-color: #009ef7;
-  --stepper-secondary-color: #b5b5c3;
-  --stepper-background-color: #f3f6f9;
-  --stepper-text-color: #181c32;
-  --stepper-disabled-color: #e1e3ea;
+.my-stepper {
+  --hub-stepper-primary-color: #009ef7;
+  --hub-stepper-surface-color: #ffffff;
+  --hub-stepper-gap: 1.5rem;
 }
-```
-
-### Programmatic Customization
-
-You can also customize the stepper appearance programmatically using the `StepperThemeService`:
-
-```typescript
-import { StepperThemeService } from '@hub-ui/stepper';
-
-@Component({...})
-export class YourComponent implements OnInit {
-  constructor(private themeService: StepperThemeService) {}
-
-  ngOnInit() {
-    this.themeService.setTheme({
-      'primary-color': '#ff4081',
-      'background-color': '#f0f0f0'
-    });
-  }
-}
-```
-
-This allows you to change the theme dynamically based on user preferences or other conditions in your application.
-
-### Custom Navigation Buttons
-You can customize the navigation buttons using the provided directives:
-
-```html
-<hub-stepper>
-  <!-- Step content -->
-  <button previousButton>Custom Back</button>
-  <button nextButton>Custom Next</button>
-  <button submitButton>Custom Submit</button>
-</hub-stepper>
-```
-
-These directives (previousButton, nextButton, and submitButton) automatically handle the navigation logic and apply default styling classes.
-
-### Custom Navigation Template
-
-```html
-<hub-stepper [stepperNavTpt]="customNavTemplate">
-  <!-- step content -->
-</hub-stepper>
-
-<ng-template #customNavTemplate let-steps="steps" let-currentIndex="currentIndex">
-  <!-- Your custom navigation markup -->
-</ng-template>
-```
-
-<!-- ## Accessibility
-
-This component is designed with accessibility in mind:
-
-- Proper ARIA attributes are used for navigation and step content
-- Keyboard navigation is supported
-- Color contrast ratios meet WCAG AA standards -->
-
-## Examples
-
-### Basic Usage
-
-```html
-<hub-stepper>
-  <hub-step title="Personal Info">
-	<!-- Personal info form fields -->
-  </hub-step>
-  <hub-step title="Address">
-	<!-- Address form fields -->
-  </hub-step>
-  <hub-step title="Confirmation">
-	<!-- Confirmation step -->
-  </hub-step>
-</hub-stepper>
-```
-
-### With Custom Navigation
-
-```html
-<hub-stepper [stepperNavTpt]="customNav">
-  <!-- Steps content -->
-</hub-stepper>
-
-<ng-template #customNav let-steps="steps" let-currentIndex="currentIndex">
-  <ul class="custom-nav">
-	<li *ngFor="let step of steps; let i = index"
-		[class.active]="i === currentIndex">
-	  {{ step.title }}
-	</li>
-  </ul>
-</ng-template>
 ```
 
 ## Contributing
 
-We welcome contributions to ng-hub-ui-stepper! Here's how you can help:
+We welcome contributions! Please follow our [Commit Guidelines](https://github.com/carlos-morcillo/ng-hub-ui/blob/main/CONTRIBUTING.md).
 
-1. Fork the repository
-2. Create your feature branch: `git checkout -b feature/AmazingFeature`
-3. Commit your changes: `git commit -m 'Add some AmazingFeature'`
-4. Push to the branch: `git push origin feature/AmazingFeature`
-5. Open a pull request
+1. Fork the repo.
+2. Create your feature branch (`git checkout -b feature/amazing-feature`).
+3. Commit your changes.
+4. Push to the branch.
+5. Create a Pull Request.
 
-Please make sure to update tests as appropriate and adhere to the [Angular Style Guide](https://angular.io/guide/styleguide).
+## Support
 
-## Support the Project
-
-If you find this project helpful and would like to support its development, you can buy me a coffee:
+If you find this project helpful, consider supporting its development:
 
 [!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/carlosmorcillo)
-
-Your support is greatly appreciated and helps maintain and improve this project!
-
-## Inspiration
-
-This project was inspired by the need for a flexible, customizable, and accessible stepper component in the Angular ecosystem. We drew inspiration from:
-
-- Material Design's Stepper component
-- Various multi-step form implementations across the web
-- Feedback and feature requests from the Angular community
-
-My goal was to create a component that combined the best features of existing solutions while adding my own improvements and focusing on customization and accessibility.
 
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-Made with ❤️ by [Carlos Morcillo Fernández]
 
