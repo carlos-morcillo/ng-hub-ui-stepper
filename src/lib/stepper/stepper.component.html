@@ -2,7 +2,7 @@
 <nav class="stepper__nav">
   <ng-container
     [ngTemplateOutlet]="stepperNavTpt() || defaultNavTpt"
-    [ngTemplateOutletContext]="{ steps: steps(), currentIndex }"
+    [ngTemplateOutletContext]="{ steps: steps(), currentIndex: currentIndex() }"
   ></ng-container>
 </nav>
 <!--end::Nav-->
@@ -11,7 +11,7 @@
 <div
   class="stepper__content"
   [class.stepper__content--animated]="hasAnimationClass()"
-  [class.stepper__content--animating]="contentAnimating$()"
+  [class.stepper__content--animating]="contentAnimating()"
   [class.stepper__content--forward]="isForwardAnimation()"
   [class.stepper__content--backward]="isBackwardAnimation()"
 >
@@ -25,13 +25,13 @@
 
 <!--begin::Controls-->
 <div class="stepper__controls">
-  @if (currentIndex > 0) {
+  @if (currentIndex() > 0) {
     <ng-content select="button[previousButton]"></ng-content>
     @if (!previousButton()) {
       <button
         class="stepper__button stepper__button--back"
         (click)="goToPrevious()"
-        [disabled]="!canNavigateTo(currentIndex - 1)"
+        [disabled]="!canNavigateTo(currentIndex() - 1)"
         >
         @if (isRtl()) {
           <span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
@@ -43,13 +43,13 @@
     }
   }
 
-  @if (currentIndex < steps().length - 1) {
+  @if (currentIndex() < steps().length - 1) {
     <ng-content select="button[nextButton]"></ng-content>
     @if (!nextButton()) {
       <button
         class="stepper__button stepper__button--next"
         (click)="goToNext()"
-        [disabled]="!canNavigateTo(currentIndex + 1)"
+        [disabled]="!canNavigateTo(currentIndex() + 1)"
         >
         {{ continueLabel() ?? ('CONTINUE' | translate | ucfirst) }}
         @if (isRtl()) {
@@ -61,13 +61,13 @@
     }
   }
 
-  @if (currentIndex === steps().length - 1) {
+  @if (currentIndex() === steps().length - 1) {
     <ng-content select="button[submitButton]"></ng-content>
     @if (!submitButton()) {
       <button
         class="stepper__button stepper__button--submit"
         (click)="complete()"
-        [disabled]="!isValidStepIndex(currentIndex)"
+        [disabled]="!isValidStepIndex(currentIndex())"
         >
         {{ submitLabel() ?? ('SUBMIT' | translate | ucfirst) }}
       </button>

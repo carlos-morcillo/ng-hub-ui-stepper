@@ -2,9 +2,8 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	inject,
-	Input,
-	input,
 	OnInit,
+	input,
 	signal,
 	TemplateRef,
 	viewChild
@@ -28,25 +27,17 @@ export class StepComponent implements OnInit {
 	/** Parent stepper instance injected from the host context. */
 	stepper = inject(StepperComponent);
 
-	/** Zero-based position of the step in the parent stepper. */
-	readonly index = input.required<number>();
+	/**
+	 * Zero-based position of this step within the parent stepper.
+	 * Assigned automatically by `StepperComponent` — do not set this manually.
+	 */
+	readonly index = signal<number>(0);
 
 	/** Optional display title rendered in the step navigation. */
 	readonly title = input<string>();
 
-	/** Reactive disabled state of this step. */
-	disabled$ = signal(false);
-
-	/** Updates the disabled state from template bindings. */
-	@Input()
-	set disabled(value: boolean) {
-		this.disabled$.set(value);
-	}
-
-	/** Returns whether the step is disabled. */
-	get disabled(): boolean {
-		return this.disabled$();
-	}
+	/** Whether the step is disabled and cannot be navigated to. */
+	readonly disabled = input(false);
 
 	/** Template reference used by the parent stepper to render step content. */
 	readonly innerTemplate = viewChild.required<TemplateRef<any>>('innerTemplate');
@@ -58,16 +49,6 @@ export class StepComponent implements OnInit {
 
 	/** Runs initial validation checks for component inputs. */
 	ngOnInit(): void {
-		this.validateInputs();
-	}
-
-	/**
-	 * Validates the configured inputs and logs warnings for invalid setups.
-	 */
-	private validateInputs(): void {
-		if (this.index() === undefined) {
-			console.warn('StepComponent: index is required');
-		}
 		if (!this.title()) {
 			console.warn('StepComponent: title is recommended for accessibility');
 		}

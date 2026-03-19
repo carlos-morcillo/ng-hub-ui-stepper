@@ -1,17 +1,18 @@
 import {
-  AfterContentInit,
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnDestroy,
-  inject,
-  signal,
-  TemplateRef,
-  input,
-  output,
-  contentChild,
-  contentChildren
+	AfterContentInit,
+	ChangeDetectionStrategy,
+	ChangeDetectorRef,
+	Component,
+	ElementRef,
+	OnDestroy,
+	effect,
+	inject,
+	signal,
+	TemplateRef,
+	input,
+	output,
+	contentChild,
+	contentChildren
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 import { TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
@@ -20,24 +21,24 @@ import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
 import { StepperNavDirective } from '../stepper-nav.directive';
 import { SubmitButtonDirective } from '../submit-button.directive';
-import { StepperLayout, StepperOptions } from './stepper-options';
+import { StepperAnimationDirection, StepperLayout, StepperOptions } from './stepper-options';
 
 /**
  * Renders and controls a multi-step workflow.
  * It coordinates navigation, state transitions and projected templates for steps and controls.
  */
 @Component({
-    selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
-    templateUrl: './stepper.component.html',
-    styleUrls: ['./stepper.component.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe],
-    host: {
-        class: 'stepper',
+	selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
+	templateUrl: './stepper.component.html',
+	styleUrls: ['./stepper.component.scss'],
+	changeDetection: ChangeDetectionStrategy.OnPush,
+	imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe],
+	host: {
+		class: 'stepper',
 		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
 		'[class.stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
 		'[class.stepper--rtl]': 'isRtl()'
-    }
+	}
 })
 export class StepperComponent implements AfterContentInit, OnDestroy {
 	#cdr = inject(ChangeDetectorRef);
@@ -48,18 +49,13 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	readonly StepperLayout = StepperLayout;
 
 	/** Stores the index of the currently active step. */
-	currentIndex$ = signal(0);
+	readonly currentIndex = signal(0);
 
 	/** Stores whether content transition animation is currently running. */
-	contentAnimating$ = signal(false);
+	readonly contentAnimating = signal(false);
 
 	/** Stores transition direction used by the CSS animation classes. */
-	animationDirection$ = signal<'forward' | 'backward'>('forward');
-
-	/** Returns the index of the currently active step. */
-	get currentIndex(): number {
-		return this.currentIndex$();
-	}
+	readonly animationDirection = signal<StepperAnimationDirection>(StepperAnimationDirection.Forward);
 
 	/** Optional custom label for the back button. */
 	readonly backLabel = input<string | null>(null);
@@ -81,6 +77,11 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Content-projected step definitions. */
 	readonly steps = contentChildren(StepComponent);
+
+	/** Automatically assigns each step its zero-based position when the steps collection changes. */
+	protected readonly assignStepIndexes = effect(() => {
+		this.steps().forEach((step, i) => step.index.set(i));
+	});
 
 	/** Optional content-projected template for custom navigation. */
 	readonly stepperNavTpt = contentChild(StepperNavDirective, { read: TemplateRef });
@@ -119,7 +120,7 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Returns the active step component instance or `null` when unavailable. */
 	get currentStep(): StepComponent | null {
-		return this.steps()?.[this.currentIndex] ?? null;
+		return this.steps()?.[this.currentIndex()] ?? null;
 	}
 
 	/** Returns whether host classes enable animated transitions. */
@@ -129,12 +130,12 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Returns whether transition direction is forward. */
 	isForwardAnimation(): boolean {
-		return this.animationDirection$() === 'forward';
+		return this.animationDirection() === StepperAnimationDirection.Forward;
 	}
 
 	/** Returns whether transition direction is backward. */
 	isBackwardAnimation(): boolean {
-		return this.animationDirection$() === 'backward';
+		return this.animationDirection() === StepperAnimationDirection.Backward;
 	}
 
 	/** Initializes projected step metadata after content projection. */
@@ -158,14 +159,14 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 * Navigates to the previous step index.
 	 */
 	goToPrevious(): void {
-		this.goTo(this.currentIndex - 1);
+		this.goTo(this.currentIndex() - 1);
 	}
 
 	/**
 	 * Navigates to the next step index.
 	 */
 	goToNext(): void {
-		this.goTo(this.currentIndex + 1);
+		this.goTo(this.currentIndex() + 1);
 	}
 
 	/**
@@ -175,12 +176,12 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 */
 	goTo(index: number): void {
 		if (this.isStepIndexInBounds(index)) {
-			const previousIndex = this.currentIndex;
+			const previousIndex = this.currentIndex();
 			if (index === previousIndex) {
 				return;
 			}
-			this.animationDirection$.set(index > previousIndex ? 'forward' : 'backward');
-			this.currentIndex$.set(index);
+			this.animationDirection.set(index > previousIndex ? StepperAnimationDirection.Forward : StepperAnimationDirection.Backward);
+			this.currentIndex.set(index);
 			this.playContentTransition();
 			this.#cdr.detectChanges();
 			if (index > previousIndex) {
@@ -217,7 +218,7 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 * @returns `true` when the step exists and is enabled.
 	 */
 	isValidStepIndex(index: number): boolean {
-		return !this.steps()?.[index]?.disabled$();
+		return !this.steps()?.[index]?.disabled();
 	}
 
 	/**
@@ -235,12 +236,12 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 */
 	private playContentTransition(): void {
 		this.clearAnimationFrame();
-		this.contentAnimating$.set(false);
+		this.contentAnimating.set(false);
 		if (!this.hasAnimationClass()) {
 			return;
 		}
 		this.#animationFrameId = globalThis.requestAnimationFrame(() => {
-			this.contentAnimating$.set(true);
+			this.contentAnimating.set(true);
 			this.#cdr.detectChanges();
 		});
 	}
@@ -264,7 +265,7 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 		if (event.target !== event.currentTarget) {
 			return;
 		}
-		this.contentAnimating$.set(false);
+		this.contentAnimating.set(false);
 		this.#cdr.detectChanges();
 	}
 }

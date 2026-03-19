@@ -6,7 +6,7 @@
 Un componente de stepper (pasos) flexible, personalizable y accesible para Angular 21+. Ideal para formularios de varios pasos, asistentes y experiencias de usuario guiadas, con un enfoque en la experiencia del desarrollador y los estándares modernos.
 
 > [!IMPORTANT]
-> Esta versión (21.1.0) está construida para **Angular 21** y utiliza la nueva arquitectura de **Signals**.
+> Esta versión (21.2.0) está construida para **Angular 21** y utiliza la nueva arquitectura de **Signals**.
 
 ## 🧩 Familia de Librerías `ng-hub-ui`
 
@@ -75,17 +75,17 @@ En tu plantilla:
 
 ```html
 <hub-stepper>
-  <hub-step [index]="0" title="Configuración de Cuenta">
+  <hub-step title="Configuración de Cuenta">
     <h3>¡Bienvenido!</h3>
     <p>Configura los detalles de tu cuenta aquí.</p>
   </hub-step>
-  
-  <hub-step [index]="1" title="Información Personal">
+
+  <hub-step title="Información Personal">
     <h3>Datos del Perfil</h3>
     <p>Cuéntanos más sobre ti.</p>
   </hub-step>
 
-  <hub-step [index]="2" title="Revisión">
+  <hub-step title="Revisión">
     <h3>Guardar y Finalizar</h3>
     <p>¿Todo listo para empezar?</p>
   </hub-step>
@@ -100,12 +100,12 @@ Controla la navegación habilitando o deshabilitando pasos programáticamente.
 
 ```html
 <hub-stepper (completed)="onFinish()">
-  <hub-step [index]="0" title="Paso 1">
-     <!-- Contenido Paso 1 -->
+  <hub-step title="Paso 1">
+    <!-- Contenido Paso 1 -->
   </hub-step>
-  
-  <hub-step [index]="1" title="Paso 2" [disabled]="!esPaso1Valido()">
-     <!-- Contenido Paso 2 -->
+
+  <hub-step title="Paso 2" [disabled]="!esPaso1Valido()">
+    <!-- Contenido Paso 2 -->
   </hub-step>
 </hub-stepper>
 ```
@@ -118,16 +118,16 @@ Proporciona tu propia plantilla de navegación usando la propiedad `stepperNavTp
 <hub-stepper>
   <nav *stepperNav="let steps = steps; let currentIndex = currentIndex" class="mi-navegacion-personalizada">
      @for (step of steps; track step; let i = $index) {
-       <button 
-         [class.active]="i === currentIndex" 
+       <button
+         [class.active]="i === currentIndex"
          (click)="goTo(i)">
          {{ step.title() }}
        </button>
      }
   </nav>
 
-  <hub-step [index]="0" title="A">...</hub-step>
-  <hub-step [index]="1" title="B">...</hub-step>
+  <hub-step title="A">...</hub-step>
+  <hub-step title="B">...</hub-step>
 </hub-stepper>
 ```
 
@@ -137,8 +137,8 @@ Proyecta tus propios botones para sobrescribir el pie de página por defecto.
 
 ```html
 <hub-stepper>
-  <hub-step [index]="0">...</hub-step>
-  
+  <hub-step>...</hub-step>
+
   <button previousButton class="btn-back">Atrás</button>
   <button nextButton class="btn-next">Siguiente</button>
   <button submitButton class="btn-done">Completar</button>
@@ -166,7 +166,6 @@ Proyecta tus propios botones para sobrescribir el pie de página por defecto.
 
 | Entrada | Tipo | Por defecto | Descripción |
 |---|---|---|---|
-| `index` | `number` | `required` | Posición del paso (basado en 0). |
 | `title` | `string` | `optional` | Texto mostrado en la navegación. |
 | `disabled` | `boolean` | `false` | Evita la navegación a este paso. |
 

@@ -18,5 +18,5 @@ export class SubmitButtonDirective {
 	readonly stepper = inject(StepperComponent);
 
 	/** Reflects whether completion is currently allowed. */
-	readonly disabled = computed(() => this.stepper.currentStep?.disabled$() ?? false);
+	readonly disabled = computed(() => this.stepper.currentStep?.disabled() ?? false);
 }

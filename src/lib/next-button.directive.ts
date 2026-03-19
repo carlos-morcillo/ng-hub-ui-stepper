@@ -19,7 +19,7 @@ export class NextButtonDirective {
 
 	/** Reflects whether the control can trigger forward navigation. */
 	readonly disabled = computed(() => {
-		const nextIndex = this.stepper.currentIndex + 1;
+		const nextIndex = this.stepper.currentIndex() + 1;
 		const nextStep = this.stepper.steps()?.[nextIndex];
 		return !nextStep || nextStep.disabled;
 	});

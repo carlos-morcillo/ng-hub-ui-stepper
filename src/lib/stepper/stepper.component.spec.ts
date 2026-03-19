@@ -13,9 +13,9 @@ import { By } from '@angular/platform-browser';
 @Component({
     template: `
 	<hub-stepper #stepper [animationsEnabled]="animationsEnabled">
-			<hub-step [index]="0" title="Step 1">Content 1</hub-step>
-			<hub-step [index]="1" title="Step 2">Content 2</hub-step>
-			<hub-step [index]="2" title="Step 3">Content 3</hub-step>
+			<hub-step title="Step 1">Content 1</hub-step>
+			<hub-step title="Step 2">Content 2</hub-step>
+			<hub-step title="Step 3">Content 3</hub-step>
 		</hub-stepper>
 	`,
     standalone: false

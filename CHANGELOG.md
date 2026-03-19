@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [21.2.0] - 2026-03-19
+
+### Added
+- `StepperAnimationDirection` enum exported from `stepper-options.ts` for typed animation direction values (`Forward`, `Backward`).
+- Step indexes are now automatically assigned by `StepperComponent` via a reactive `effect()` — no manual `[index]` binding required.
+
+### Changed
+- `StepComponent.index` is now an internal writable signal managed by the parent stepper. Remove all `[index]="N"` bindings from `hub-step` templates.
+- `StepComponent.disabled` simplified from a getter/setter with a backing `disabled$` signal to a direct signal input (`input(false)`).
+- `StepperComponent.currentIndex` is now a public writable signal (`signal<number>`) — call as `currentIndex()` instead of the previous getter.
+- Renamed internal signals: `currentIndex$` → `currentIndex`, `contentAnimating$` → `contentAnimating`, `animationDirection$` → `animationDirection` (removed `$` suffix convention).
+- Animation direction internally uses `StepperAnimationDirection` enum values instead of raw string literals.
+
+### Removed
+- `StepComponent.disabled$` backing signal removed — use the `disabled` signal input directly.
+- `[index]` template binding removed from `StepComponent` — indexes are managed internally by the stepper.
+
 ## [21.1.0] - 2026-03-18
 
 ### Added

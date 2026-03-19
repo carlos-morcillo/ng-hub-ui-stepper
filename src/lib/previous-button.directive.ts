@@ -19,7 +19,7 @@ export class PreviousButtonDirective {
 
 	/** Reflects whether the control can trigger backward navigation. */
 	readonly disabled = computed(() => {
-		const prevIndex = this.stepper.currentIndex - 1;
+		const prevIndex = this.stepper.currentIndex() - 1;
 		const prevStep = this.stepper.steps()?.[prevIndex];
 		return !prevStep || prevStep.disabled;
 	});

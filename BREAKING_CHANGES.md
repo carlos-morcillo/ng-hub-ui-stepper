@@ -2,6 +2,38 @@
 
 This document tracks all breaking changes in the `ng-hub-ui-stepper` library.
 
+## Version 21.2.0
+
+### Removed `[index]` input from `StepComponent`
+
+**Before:**
+```html
+<hub-step [index]="0" title="Step 1">...</hub-step>
+<hub-step [index]="1" title="Step 2">...</hub-step>
+```
+
+**After (remove `[index]` entirely):**
+```html
+<hub-step title="Step 1">...</hub-step>
+<hub-step title="Step 2">...</hub-step>
+```
+
+Indexes are now automatically assigned by the parent `StepperComponent`.
+
+### `StepComponent.disabled$` backing signal removed
+
+**Before:** `step.disabled$()` (writable signal)
+**After:** `step.disabled()` (read-only signal input)
+
+### `StepperComponent` signal renames
+
+| Before | After |
+|---|---|
+| `stepper.currentIndex` (getter → `number`) | `stepper.currentIndex()` (signal) |
+| `stepper.currentIndex$()` | `stepper.currentIndex()` |
+| `stepper.contentAnimating$()` | `stepper.contentAnimating()` |
+| `stepper.animationDirection$()` | `stepper.animationDirection()` |
+
 ## Version 21.x.x
 
 ### Major Version Jump (1.x -> 21.x)

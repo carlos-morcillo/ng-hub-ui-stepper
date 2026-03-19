@@ -1,4 +1,12 @@
 /**
+ * Direction of the step transition animation.
+ */
+export enum StepperAnimationDirection {
+	Forward = 'forward',
+	Backward = 'backward'
+}
+
+/**
  * Available layout modes for the stepper container.
  */
 export enum StepperLayout {

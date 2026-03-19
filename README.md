@@ -6,7 +6,7 @@
 A flexible, customizable, and accessible stepper component for Angular 21+. Perfect for multi-step forms, wizards, and guided user experiences with a focus on developer experience and modern standards.
 
 > [!IMPORTANT]
-> This version (21.1.0) is built for **Angular 21** and uses the new **Signals** architecture.
+> This version (21.2.0) is built for **Angular 21** and uses the new **Signals** architecture.
 
 ## 🧩 Library Family `ng-hub-ui`
 
@@ -75,17 +75,17 @@ In your template:
 
 ```html
 <hub-stepper>
-  <hub-step [index]="0" title="Account Setup">
+  <hub-step title="Account Setup">
     <h3>Welcome!</h3>
     <p>Setup your account details here.</p>
   </hub-step>
-  
-  <hub-step [index]="1" title="Personal Info">
+
+  <hub-step title="Personal Info">
     <h3>Profile Data</h3>
     <p>Tell us more about yourself.</p>
   </hub-step>
 
-  <hub-step [index]="2" title="Review">
+  <hub-step title="Review">
     <h3>Save & Finalize</h3>
     <p>Ready to go?</p>
   </hub-step>
@@ -100,12 +100,12 @@ Control navigation by enabling/disabling steps programmatically.
 
 ```html
 <hub-stepper (completed)="onFinish()">
-  <hub-step [index]="0" title="Step 1">
-     <!-- Step 1 Content -->
+  <hub-step title="Step 1">
+    <!-- Step 1 Content -->
   </hub-step>
-  
-  <hub-step [index]="1" title="Step 2" [disabled]="!isStep1Valid()">
-     <!-- Step 2 Content -->
+
+  <hub-step title="Step 2" [disabled]="!isStep1Valid()">
+    <!-- Step 2 Content -->
   </hub-step>
 </hub-stepper>
 ```
@@ -118,16 +118,16 @@ Provide your own navigation template using the `stepperNavTpt` property.
 <hub-stepper>
   <nav *stepperNav="let steps = steps; let currentIndex = currentIndex" class="my-custom-nav">
      @for (step of steps; track step; let i = $index) {
-       <button 
-         [class.active]="i === currentIndex" 
+       <button
+         [class.active]="i === currentIndex"
          (click)="goTo(i)">
          {{ step.title() }}
        </button>
      }
   </nav>
 
-  <hub-step [index]="0" title="A">...</hub-step>
-  <hub-step [index]="1" title="B">...</hub-step>
+  <hub-step title="A">...</hub-step>
+  <hub-step title="B">...</hub-step>
 </hub-stepper>
 ```
 
@@ -137,8 +137,8 @@ Project your own buttons to override the default footer.
 
 ```html
 <hub-stepper>
-  <hub-step [index]="0">...</hub-step>
-  
+  <hub-step>...</hub-step>
+
   <button previousButton class="btn-back">Go back</button>
   <button nextButton class="btn-next">Next step</button>
   <button submitButton class="btn-done">Complete</button>
@@ -166,7 +166,6 @@ Project your own buttons to override the default footer.
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `index` | `number` | `required` | Position of the step (0-indexed). |
 | `title` | `string` | `optional` | Text displayed in navigation. |
 | `disabled` | `boolean` | `false` | Prevents navigation to this step. |
 
