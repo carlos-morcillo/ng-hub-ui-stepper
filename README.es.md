@@ -1,5 +1,7 @@
 # ng-hub-ui-stepper
 
+**Español** | [English](./README.md)
+
 [![npm version](https://img.shields.io/npm/v/ng-hub-ui-stepper.svg)](https://www.npmjs.com/package/ng-hub-ui-stepper)
 [![license](https://img.shields.io/npm/l/ng-hub-ui-stepper.svg)](https://github.com/carlos-morcillo/ng-hub-ui-stepper/blob/main/LICENSE)
 
@@ -8,19 +10,32 @@ Un componente de stepper (pasos) flexible, personalizable y accesible para Angul
 > [!IMPORTANT]
 > Esta versión (21.2.0) está construida para **Angular 21** y utiliza la nueva arquitectura de **Signals**.
 
-## 🧩 Familia de Librerías `ng-hub-ui`
+## Documentación y ejemplos en vivo
+
+Este paquete forma parte de [Hub UI](https://hubui.dev/), una colección de bibliotecas de componentes Angular para aplicaciones standalone.
+
+- Documentación: https://hubui.dev/stepper/overview/
+- Ejemplos en vivo: https://hubui.dev/stepper/examples/
+- Hub UI: https://hubui.dev/
+
+## 🧩 Familia de bibliotecas `ng-hub-ui`
 
 Esta librería forma parte del ecosistema **ng-hub-ui**:
 
 - [**ng-hub-ui-accordion**](https://www.npmjs.com/package/ng-hub-ui-accordion)
+- [**ng-hub-ui-action-sheet**](https://www.npmjs.com/package/ng-hub-ui-action-sheet)
 - [**ng-hub-ui-avatar**](https://www.npmjs.com/package/ng-hub-ui-avatar)
 - [**ng-hub-ui-board**](https://www.npmjs.com/package/ng-hub-ui-board)
 - [**ng-hub-ui-breadcrumbs**](https://www.npmjs.com/package/ng-hub-ui-breadcrumbs)
 - [**ng-hub-ui-calendar**](https://www.npmjs.com/package/ng-hub-ui-calendar)
+- [**ng-hub-ui-dropdown**](https://www.npmjs.com/package/ng-hub-ui-dropdown)
+- [**ng-hub-ui-history**](https://www.npmjs.com/package/ng-hub-ui-history)
 - [**ng-hub-ui-modal**](https://www.npmjs.com/package/ng-hub-ui-modal)
+- [**ng-hub-ui-nav**](https://www.npmjs.com/package/ng-hub-ui-nav)
 - [**ng-hub-ui-paginable**](https://www.npmjs.com/package/ng-hub-ui-paginable)
 - [**ng-hub-ui-portal**](https://www.npmjs.com/package/ng-hub-ui-portal)
-- [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper)
+- [**ng-hub-ui-sortable**](https://www.npmjs.com/package/ng-hub-ui-sortable)
+- [**ng-hub-ui-stepper**](https://www.npmjs.com/package/ng-hub-ui-stepper) ← Estás aquí
 - [**ng-hub-ui-utils**](https://www.npmjs.com/package/ng-hub-ui-utils)
 
 ## Tabla de Contenidos
@@ -38,7 +53,7 @@ Esta librería forma parte del ecosistema **ng-hub-ui**:
 	- [Directivas](#directivas)
 	- [Interfaces](#interfaces)
 - [Estilos](#estilos)
-- [Contribución](#contribución)
+- [Contribuir](#contribuir)
 - [Licencia](#licencia)
 
 ## Características
@@ -198,7 +213,7 @@ Personaliza el componente usando variables CSS. Para una lista completa de los t
 }
 ```
 
-## Contribución
+## Contribuir
 
 ¡Agradecemos todas las contribuciones! Por favor, sigue nuestras [Guías de Commit](https://github.com/carlos-morcillo/ng-hub-ui/blob/main/CONTRIBUTING.md).
 
