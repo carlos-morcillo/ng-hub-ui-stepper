@@ -1,4 +1,5 @@
-import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Injectable, Renderer2, RendererFactory2, inject } from '@angular/core';
 
 /**
  * Applies runtime CSS variable overrides for the stepper design tokens.
@@ -9,6 +10,9 @@ import { Injectable, Renderer2, RendererFactory2 } from '@angular/core';
 export class StepperThemeService {
 	/** Angular renderer used to update root-level CSS variables safely. */
 	private renderer: Renderer2;
+
+	/** Injected document token; SSR-safe alternative to the global `document`. */
+	private readonly document = inject(DOCUMENT);
 
 	/**
 	 * Creates a renderer instance for dynamic style updates.
@@ -26,7 +30,7 @@ export class StepperThemeService {
 	 */
 	setTheme(theme: { [key: string]: string }) {
 		Object.keys(theme).forEach((key) => {
-			this.renderer.setStyle(document.documentElement, `--hub-stepper-${key}`, theme[key]);
+			this.renderer.setStyle(this.document.documentElement, `--hub-stepper-${key}`, theme[key]);
 		});
 	}
 }
