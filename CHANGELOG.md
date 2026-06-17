@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.0.0] - 2026-06-17
+
+### Changed
+
+- Aligned with Angular 22.
+- README documentation standardized.
+
+
+## [21.2.1] - 2026-06-13
+
+### Fixed
+- `StepperThemeService.setTheme` no longer references the global `document`, which threw `ReferenceError: document is not defined` during server-side rendering. It now injects the `DOCUMENT` token, making runtime theming SSR-safe.
+
 ## [21.2.0] - 2026-03-19
 
 ### Added
