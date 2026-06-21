@@ -6,7 +6,8 @@
 	--hub-stepper-border-color: var(--hub-sys-border-color-default, #d8dde6);
 	--hub-stepper-surface-color: var(--hub-sys-surface-page, #ffffff);
 	--hub-stepper-nav-bg: var(--hub-sys-surface-page, transparent);
-	--hub-stepper-nav-padding: 0;
+	--hub-stepper-nav-padding-x: 0;
+	--hub-stepper-nav-padding-y: 0;
 	--hub-stepper-nav-border-width: 0;
 	--hub-stepper-nav-border-color: var(--hub-sys-border-color-default, #dee2e6);
 	--hub-stepper-nav-link-color: var(--hub-sys-text-primary, #495057);
@@ -38,7 +39,8 @@
 		var(--hub-stepper-sidebar-ideal-width),
 		var(--hub-stepper-sidebar-max-width)
 	);
-	--hub-stepper-content-padding: 0;
+	--hub-stepper-content-padding-x: 0;
+	--hub-stepper-content-padding-y: 0;
 	--hub-stepper-content-border-width: 0;
 	--hub-stepper-animation-duration: var(--hub-sys-transition-duration-base, 260ms);
 	--hub-stepper-animation-easing: var(--hub-sys-transition-timing-function-base, ease);
@@ -82,7 +84,7 @@
 		background-color: var(--hub-stepper-nav-bg);
 		border: var(--hub-stepper-nav-border-width) solid var(--hub-stepper-nav-border-color);
 		border-radius: var(--hub-ref-radius-md, 0.5rem);
-		padding: var(--hub-stepper-nav-padding);
+		padding: var(--hub-stepper-nav-padding-y, 0) var(--hub-stepper-nav-padding-x, 0);
 		overflow-x: auto;
 	}
 
@@ -138,7 +140,7 @@
 		border: var(--hub-stepper-content-border-width) solid var(--hub-stepper-border-color);
 		border-radius: var(--hub-ref-radius-md, 0.5rem);
 		background-color: var(--hub-stepper-surface-color);
-		padding: var(--hub-stepper-content-padding);
+		padding: var(--hub-stepper-content-padding-y, 0) var(--hub-stepper-content-padding-x, 0);
 		min-width: 0;
 		position: relative;
 		overflow: hidden;
