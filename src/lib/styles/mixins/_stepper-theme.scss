@@ -1,0 +1,168 @@
+// ─────────────────────────────────────────────────────────────────────────
+// hub-stepper-theme — one-call theming for `<hub-stepper>`
+// ─────────────────────────────────────────────────────────────────────────
+//
+// Override any of the `--hub-stepper-*` design tokens in a single include.
+// Every parameter is OPTIONAL and defaults to `null`: only the parameters you
+// pass are emitted, so the rest keep the component's defaults. Token-based and
+// self-contained (no Bootstrap dependencies).
+//
+// The semantic `variant` accent is applied automatically; use this mixin to
+// restyle the shell — surfaces, nav pills, controls, spacing — or to set a
+// brand accent on a custom selector.
+//
+// @example
+//
+//   @use 'ng-hub-ui-stepper/styles/mixins/stepper-theme' as *;
+//
+//   .checkout-stepper {
+//     @include hub-stepper-theme(
+//       $accent: var(--hub-sys-color-success),
+//       $gap: 1.5rem,
+//       $nav-link-active-color: #fff,
+//       $sidebar-width: 220px
+//     );
+//   }
+//
+// scss-docs-start hub-stepper-theme
+@mixin hub-stepper-theme(
+	// ── Accent & surfaces ──
+	$accent: null,
+	$surface: null,
+	$background: null,
+	$text: null,
+	$border: null,
+	$gap: null,
+	$disabled-opacity: null,
+	// ── Nav (container) ──
+	$nav-bg: null,
+	$nav-padding-x: null,
+	$nav-padding-y: null,
+	$nav-border-width: null,
+	$nav-border-color: null,
+	$nav-gap: null,
+	// ── Nav links / step pills ──
+	$nav-link-color: null,
+	$nav-link-hover-color: null,
+	$nav-link-hover-bg: null,
+	$nav-link-active-color: null,
+	$nav-link-active-bg: null,
+	$nav-link-active-border-color: null,
+	$nav-link-disabled-color: null,
+	// ── Step trigger (pill) ──
+	$trigger-padding-x: null,
+	$trigger-padding-y: null,
+	$trigger-gap: null,
+	$trigger-font-size: null,
+	// ── Controls (footer buttons) ──
+	$controls-gap: null,
+	$controls-justify: null,
+	$control-padding-x: null,
+	$control-padding-y: null,
+	$control-font-size: null,
+	// ── Sidebar layout ──
+	$sidebar-width: null
+) {
+	// Accent & surfaces
+	@if $accent != null {
+		--hub-stepper-accent: #{$accent};
+	}
+	@if $surface != null {
+		--hub-stepper-surface-color: #{$surface};
+	}
+	@if $background != null {
+		--hub-stepper-background-color: #{$background};
+	}
+	@if $text != null {
+		--hub-stepper-text-color: #{$text};
+	}
+	@if $border != null {
+		--hub-stepper-border-color: #{$border};
+	}
+	@if $gap != null {
+		--hub-stepper-gap: #{$gap};
+	}
+	@if $disabled-opacity != null {
+		--hub-stepper-disabled-opacity: #{$disabled-opacity};
+	}
+
+	// Nav container
+	@if $nav-bg != null {
+		--hub-stepper-nav-bg: #{$nav-bg};
+	}
+	@if $nav-padding-x != null {
+		--hub-stepper-nav-padding-x: #{$nav-padding-x};
+	}
+	@if $nav-padding-y != null {
+		--hub-stepper-nav-padding-y: #{$nav-padding-y};
+	}
+	@if $nav-border-width != null {
+		--hub-stepper-nav-border-width: #{$nav-border-width};
+	}
+	@if $nav-border-color != null {
+		--hub-stepper-nav-border-color: #{$nav-border-color};
+	}
+	@if $nav-gap != null {
+		--hub-stepper-nav-gap: #{$nav-gap};
+	}
+
+	// Nav links / step pills
+	@if $nav-link-color != null {
+		--hub-stepper-nav-link-color: #{$nav-link-color};
+	}
+	@if $nav-link-hover-color != null {
+		--hub-stepper-nav-link-hover-color: #{$nav-link-hover-color};
+	}
+	@if $nav-link-hover-bg != null {
+		--hub-stepper-nav-link-hover-bg: #{$nav-link-hover-bg};
+	}
+	@if $nav-link-active-color != null {
+		--hub-stepper-nav-link-active-color: #{$nav-link-active-color};
+	}
+	@if $nav-link-active-bg != null {
+		--hub-stepper-nav-link-active-bg: #{$nav-link-active-bg};
+	}
+	@if $nav-link-active-border-color != null {
+		--hub-stepper-nav-link-active-border-color: #{$nav-link-active-border-color};
+	}
+	@if $nav-link-disabled-color != null {
+		--hub-stepper-nav-link-disabled-color: #{$nav-link-disabled-color};
+	}
+
+	// Step trigger
+	@if $trigger-padding-x != null {
+		--hub-stepper-nav-trigger-padding-x: #{$trigger-padding-x};
+	}
+	@if $trigger-padding-y != null {
+		--hub-stepper-nav-trigger-padding-y: #{$trigger-padding-y};
+	}
+	@if $trigger-gap != null {
+		--hub-stepper-nav-trigger-gap: #{$trigger-gap};
+	}
+	@if $trigger-font-size != null {
+		--hub-stepper-nav-trigger-font-size: #{$trigger-font-size};
+	}
+
+	// Controls
+	@if $controls-gap != null {
+		--hub-stepper-controls-gap: #{$controls-gap};
+	}
+	@if $controls-justify != null {
+		--hub-stepper-controls-justify: #{$controls-justify};
+	}
+	@if $control-padding-x != null {
+		--hub-stepper-control-padding-x: #{$control-padding-x};
+	}
+	@if $control-padding-y != null {
+		--hub-stepper-control-padding-y: #{$control-padding-y};
+	}
+	@if $control-font-size != null {
+		--hub-stepper-control-font-size: #{$control-font-size};
+	}
+
+	// Sidebar layout
+	@if $sidebar-width != null {
+		--hub-stepper-sidebar-width: #{$sidebar-width};
+	}
+}
+// scss-docs-end hub-stepper-theme

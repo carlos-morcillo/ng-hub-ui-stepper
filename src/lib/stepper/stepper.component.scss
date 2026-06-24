@@ -1,6 +1,9 @@
 :host {
 	/* Default design tokens for the stepper component. */
-	--hub-stepper-primary-color: var(--hub-sys-color-primary, #009ef7);
+	/* Semantic accent — drives the active step pill + next/submit controls.
+	   Defaults to primary; a `variant` re-bases it (see @each at the end). */
+	--hub-stepper-accent: var(--hub-sys-color-primary, #009ef7);
+	--hub-stepper-primary-color: var(--hub-stepper-accent);
 	--hub-stepper-background-color: var(--hub-sys-surface-elevated, #f3f6f9);
 	--hub-stepper-text-color: var(--hub-sys-text-primary, #181c32);
 	--hub-stepper-border-color: var(--hub-sys-border-color-default, #d8dde6);
@@ -14,8 +17,8 @@
 	--hub-stepper-nav-link-hover-color: var(--hub-sys-link-hover-color, #0d6efd);
 	--hub-stepper-nav-link-hover-bg: var(--hub-sys-state-hover-bg, #f8f9fa);
 	--hub-stepper-nav-link-active-color: var(--hub-ref-color-white, #ffffff);
-	--hub-stepper-nav-link-active-bg: var(--hub-sys-color-primary, #0d6efd);
-	--hub-stepper-nav-link-active-border-color: var(--hub-sys-color-primary, #0d6efd);
+	--hub-stepper-nav-link-active-bg: var(--hub-stepper-accent);
+	--hub-stepper-nav-link-active-border-color: var(--hub-stepper-accent);
 	--hub-stepper-nav-link-disabled-color: var(--hub-sys-text-muted, #adb5bd);
 	--hub-stepper-gap: var(--hub-ref-space-3, 1rem);
 	--hub-stepper-nav-gap: var(--hub-ref-space-1, 0.25rem);
@@ -330,4 +333,15 @@
 :host ::ng-deep button.stepper__button:disabled {
 	opacity: var(--hub-stepper-disabled-opacity);
 	cursor: not-allowed;
+}
+
+/* ─── Semantic variants ──────────────────────────────────────────────────────
+   Opt-in accent via `<hub-stepper variant="success">`. Each variant re-bases
+   `--hub-stepper-accent` (the active step pill + next/submit controls); the
+   built-in five map to the design-system families. Any custom variant resolves
+   through the host's inline `--hub-stepper-accent` binding. */
+@each $variant in (primary, success, danger, warning, info) {
+	:host([data-variant='#{$variant}']) {
+		--hub-stepper-accent: var(--hub-sys-color-#{$variant});
+	}
 }

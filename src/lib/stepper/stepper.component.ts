@@ -3,6 +3,7 @@ import {
 	ChangeDetectionStrategy,
 	ChangeDetectorRef,
 	Component,
+	computed,
 	ElementRef,
 	OnDestroy,
 	effect,
@@ -27,6 +28,9 @@ import { StepperAnimationDirection, StepperLayout, StepperOptions } from './step
  * Renders and controls a multi-step workflow.
  * It coordinates navigation, state transitions and projected templates for steps and controls.
  */
+/** Variants with exact design-system token coverage via the SCSS `@each` loop. */
+const STEPPER_BUILT_IN_VARIANTS = new Set<string>(['primary', 'success', 'danger', 'warning', 'info']);
+
 @Component({
 	selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
 	templateUrl: './stepper.component.html',
@@ -37,7 +41,9 @@ import { StepperAnimationDirection, StepperLayout, StepperOptions } from './step
 		class: 'stepper',
 		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
 		'[class.stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
-		'[class.stepper--rtl]': 'isRtl()'
+		'[class.stepper--rtl]': 'isRtl()',
+		'[attr.data-variant]': 'variant() ?? null',
+		'[style.--hub-stepper-accent]': 'customAccent()'
 	}
 })
 export class StepperComponent implements AfterContentInit, OnDestroy {
@@ -56,6 +62,23 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Stores transition direction used by the CSS animation classes. */
 	readonly animationDirection = signal<StepperAnimationDirection>(StepperAnimationDirection.Forward);
+
+	/**
+	 * Semantic accent of the stepper: `'primary'` · `'success'` · `'danger'` ·
+	 * `'warning'` · `'info'`, or any custom string (read as `--hub-sys-color-<variant>`).
+	 * Re-bases `--hub-stepper-accent`, which drives the active step pill and the
+	 * next / submit controls. Defaults to primary.
+	 */
+	readonly variant = input<string>();
+
+	/**
+	 * Inline accent for custom (non-built-in) variants — the built-in five are
+	 * resolved by the SCSS `@each` loop, so this returns `null` for them.
+	 */
+	protected readonly customAccent = computed(() => {
+		const v = this.variant();
+		return v && !STEPPER_BUILT_IN_VARIANTS.has(v) ? `var(--hub-sys-color-${v})` : null;
+	});
 
 	/** Optional custom label for the back button. */
 	readonly backLabel = input<string | null>(null);

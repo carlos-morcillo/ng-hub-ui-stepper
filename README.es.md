@@ -174,6 +174,7 @@ Proyecta tus propios botones para sobrescribir el pie de página por defecto.
 | `backLabel` | `string` | `'Back'` | Etiqueta para el botón de retroceso. |
 | `continueLabel` | `string` | `'Continue'` | Etiqueta para el botón de continuar. |
 | `submitLabel` | `string` | `'Submit'` | Etiqueta para el botón de envío final. |
+| `variant` | `string` | `'primary'` | Acento semántico para la píldora del paso activo y los controles de siguiente / enviar. Valores integrados: `primary`, `success`, `danger`, `warning`, `info`. Cualquier otra cadena también se acepta y se resuelve a través de `--hub-sys-color-<variant>`. |
 | `options` | `StepperOptions` | `{}` | Configuración visual y de diseño. |
 
 | Salida | Tipo | Descripción |
@@ -215,6 +216,33 @@ Personaliza el componente usando variables CSS. Para una lista completa de los t
   --hub-stepper-primary-color: #009ef7;
   --hub-stepper-surface-color: #ffffff;
   --hub-stepper-gap: 1.5rem;
+}
+```
+
+### Acento semántico
+
+El token `--hub-stepper-accent` controla la píldora del paso activo y los controles de siguiente / enviar. Su valor por defecto es `var(--hub-sys-color-primary)`. La forma más sencilla de definirlo es la entrada `variant` (consulta la [Referencia de la API](#steppercomponent)), pero también puedes sobrescribir el token directamente:
+
+```css
+.mi-stepper {
+  --hub-stepper-accent: var(--hub-sys-color-success);
+}
+```
+
+### Mixin de Sass
+
+Para una tematización completa en una sola llamada, el paquete incluye un mixin de Sass `hub-stepper-theme()`. Todos los parámetros son opcionales y su valor por defecto es `null`, por lo que solo se emiten como sobrescrituras `--hub-stepper-*` los que pases:
+
+```scss
+@use 'ng-hub-ui-stepper/styles/mixins/stepper-theme' as *;
+
+.checkout-stepper {
+  @include hub-stepper-theme(
+    $accent: var(--hub-sys-color-success),
+    $gap: 1.5rem,
+    $nav-link-active-color: #fff,
+    $sidebar-width: 220px
+  );
 }
 ```
 

@@ -174,6 +174,7 @@ Project your own buttons to override the default footer.
 | `backLabel` | `string` | `'Back'` | Label for the back button. |
 | `continueLabel` | `string` | `'Continue'` | Label for the continue button. |
 | `submitLabel` | `string` | `'Submit'` | Label for the submit button. |
+| `variant` | `string` | `'primary'` | Semantic accent for the active step pill and the next / submit controls. Built-in values: `primary`, `success`, `danger`, `warning`, `info`. Any other string is also accepted and resolves through `--hub-sys-color-<variant>`. |
 | `options` | `StepperOptions` | `{}` | Visual and layout configuration. |
 
 | Output | Type | Description |
@@ -215,6 +216,33 @@ Customize the component using CSS variables. For a complete list of available to
   --hub-stepper-primary-color: #009ef7;
   --hub-stepper-surface-color: #ffffff;
   --hub-stepper-gap: 1.5rem;
+}
+```
+
+### Semantic accent
+
+The `--hub-stepper-accent` token drives the active step pill and the next / submit controls. It defaults to `var(--hub-sys-color-primary)`. The easiest way to set it is the `variant` input (see [API Reference](#steppercomponent)), but you can also override the token directly:
+
+```css
+.my-stepper {
+  --hub-stepper-accent: var(--hub-sys-color-success);
+}
+```
+
+### Sass mixin
+
+For full theming in a single call, the package ships a `hub-stepper-theme()` Sass mixin. Every parameter is optional and defaults to `null`, so only the ones you pass are emitted as `--hub-stepper-*` overrides:
+
+```scss
+@use 'ng-hub-ui-stepper/styles/mixins/stepper-theme' as *;
+
+.checkout-stepper {
+  @include hub-stepper-theme(
+    $accent: var(--hub-sys-color-success),
+    $gap: 1.5rem,
+    $nav-link-active-color: #fff,
+    $sidebar-width: 220px
+  );
 }
 ```
 

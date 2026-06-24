@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [22.1.0] - 2026-06-24
+
+### Added
+
+- New **`variant` input** on `<hub-stepper>` selecting a **semantic accent**: `<hub-stepper variant="success">` recolours the active step pill and the next / submit controls. The built-in values (`primary` / `success` / `danger` / `warning` / `info`) map to the design-system families via a Sass `@each` loop; **any other string is also accepted** — the accent reads `--hub-sys-color-<variant>`. Defaults to primary (no visual change). New token `--hub-stepper-accent` (the `--hub-stepper-primary-color` and active-pill tokens now follow it).
+- New **`hub-stepper-theme()` Sass mixin** (`styles/mixins/stepper-theme`) — theme a stepper in one call: accent, surfaces, nav pills, controls, spacing and the sidebar width. Every parameter is optional and defaults to `null`, so only the ones you pass are emitted as `--hub-stepper-*` overrides. Token-based, no Bootstrap dependency. (Complements the existing `StepperThemeService` for runtime overrides.)
+- The `styles/` folder is now shipped inside the package, so the mixin can be consumed directly via `@use 'ng-hub-ui-stepper/styles/mixins/stepper-theme'`.
 
 ### Changed
 
