@@ -3,6 +3,14 @@
 	/* Semantic accent — drives the active step pill + next/submit controls.
 	   Defaults to primary; a `variant` re-bases it (see @each at the end). */
 	--hub-stepper-accent: var(--hub-sys-color-primary, #009ef7);
+	/* Roles derived LOCALLY from the single accent slot, so re-basing the accent
+	   (via `variant`, an inline binding or the `hub-stepper-theme()` mixin)
+	   recomputes the whole family at runtime — no recompile, no second token. */
+	--hub-stepper-accent-emphasis: color-mix(in oklch, var(--hub-stepper-accent) 80%, var(--hub-sys-color-ink, #212529));
+	--hub-stepper-accent-subtle: color-mix(in oklch, var(--hub-stepper-accent) 12%, var(--hub-sys-surface-page, #fff));
+	/* Contrast / on-color: text that sits ON the accent (the active step pill +
+	   next/submit controls). Grayscale flip driven by the accent's lightness. */
+	--hub-stepper-accent-on: oklch(from var(--hub-stepper-accent) clamp(0, (0.62 - l) * 1000, 1) 0 h);
 	--hub-stepper-primary-color: var(--hub-stepper-accent);
 	--hub-stepper-background-color: var(--hub-sys-surface-elevated, #f8f9fa);
 	--hub-stepper-text-color: var(--hub-sys-text-primary, #212529);
@@ -16,7 +24,7 @@
 	--hub-stepper-nav-link-color: var(--hub-sys-text-primary, #212529);
 	--hub-stepper-nav-link-hover-color: var(--hub-sys-link-hover-color, #0a58ca);
 	--hub-stepper-nav-link-hover-bg: var(--hub-sys-state-hover-bg, rgba(0, 0, 0, 0.075));
-	--hub-stepper-nav-link-active-color: var(--hub-ref-color-white, #ffffff);
+	--hub-stepper-nav-link-active-color: var(--hub-stepper-accent-on, #ffffff);
 	--hub-stepper-nav-link-active-bg: var(--hub-stepper-accent);
 	--hub-stepper-nav-link-active-border-color: var(--hub-stepper-accent);
 	--hub-stepper-nav-link-disabled-color: var(--hub-sys-text-muted, #6c757d);
@@ -183,7 +191,7 @@
 		&--submit {
 			background-color: var(--hub-stepper-primary-color);
 			border-color: var(--hub-stepper-primary-color);
-			color: var(--hub-ref-color-white, #ffffff);
+			color: var(--hub-stepper-accent-on, #ffffff);
 		}
 
 		&:disabled {
@@ -197,7 +205,7 @@
 	&__controls button[submitButton] {
 		background-color: var(--hub-stepper-primary-color);
 		border-color: var(--hub-stepper-primary-color);
-		color: var(--hub-ref-color-white, #ffffff);
+		color: var(--hub-stepper-accent-on, #ffffff);
 	}
 
 	&__controls button[previousButton] {
@@ -327,7 +335,7 @@
 :host ::ng-deep button.stepper__button--submit {
 	background-color: var(--hub-stepper-primary-color);
 	border-color: var(--hub-stepper-primary-color);
-	color: var(--hub-ref-color-white, #ffffff);
+	color: var(--hub-stepper-accent-on, #ffffff);
 }
 
 :host ::ng-deep button.stepper__button:disabled {
@@ -336,11 +344,26 @@
 }
 
 /* ─── Semantic variants ──────────────────────────────────────────────────────
-   Opt-in accent via `<hub-stepper variant="success">`. Each variant re-bases
-   `--hub-stepper-accent` (the active step pill + next/submit controls); the
-   built-in five map to the design-system families. Any custom variant resolves
-   through the host's inline `--hub-stepper-accent` binding. */
-@each $variant in (primary, success, danger, warning, info) {
+   Opt-in accent via `<hub-stepper variant="success">`. Each variant re-bases the
+   single `--hub-stepper-accent` slot (the active step pill + next/submit
+   controls); the derived family (`-emphasis` / `-subtle` / `-on`) follows. */
+
+/* Open-set default — ANY variant the host application defines. The derived
+   roles are re-mixed from the single accent slot, so a custom accent
+   (e.g. `variant="brand"` backed by `--hub-sys-color-brand`) interconnects with
+   ONE CSS rule the user writes:
+     :root { --hub-sys-color-brand: #ff6b00; }
+   No per-colour CSS is needed here for custom variants — only the open default. */
+:host([data-variant]) {
+	--hub-stepper-accent-emphasis: color-mix(in oklch, var(--hub-stepper-accent) 80%, var(--hub-sys-color-ink, #212529));
+	--hub-stepper-accent-subtle: color-mix(in oklch, var(--hub-stepper-accent) 12%, var(--hub-sys-surface-page, #fff));
+	--hub-stepper-accent-on: oklch(from var(--hub-stepper-accent) clamp(0, (0.62 - l) * 1000, 1) 0 h);
+}
+
+/* Built-in semantic variants — re-base the slot to the exact design-system
+   `--hub-sys-color-<variant>` tint. The full open accent set: primary,
+   secondary, success, danger, warning, info, neutral, light, dark. */
+@each $variant in (primary, secondary, success, danger, warning, info, neutral, light, dark) {
 	:host([data-variant='#{$variant}']) {
 		--hub-stepper-accent: var(--hub-sys-color-#{$variant});
 	}

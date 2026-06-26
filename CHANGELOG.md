@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.2.0] - 2026-06-26
+
+### Added
+
+- **Open-set accent variants.** `<hub-stepper variant="…">` now accepts the full open accent set out of the box — `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `neutral`, `light`, `dark` (previously only the first five chromatic ones re-based the accent). Any other variant works at runtime with no recompile: define a single `--hub-sys-color-<name>` (e.g. `:root { --hub-sys-color-brand: #ff6b00; }`) and `<hub-stepper variant="brand">` derives the active-pill / controls treatment from it, via the new open-set `[data-variant]` rule.
+- New derived accent roles `--hub-stepper-accent-emphasis`, `--hub-stepper-accent-subtle` and `--hub-stepper-accent-on`, mixed locally from the single `--hub-stepper-accent` slot. The active step pill and the next/submit controls now take their text colour from `--hub-stepper-accent-on` instead of a hardcoded white, so a light custom accent stays legible.
+- The `hub-stepper-theme()` mixin now re-derives the accent role family whenever its `$accent` parameter is passed, so a brand accent applied on a custom selector recomputes `-emphasis` / `-subtle` / `-on` (the slot stays the single source of truth — no duplication).
+
+### Changed
+
+- The accent role family is now mixed in the **OKLCH** colour space (`color-mix(in oklch, …)`) for perceptually even tints across every accent.
+
 ## [22.1.1] - 2026-06-25
 
 ### Fixed

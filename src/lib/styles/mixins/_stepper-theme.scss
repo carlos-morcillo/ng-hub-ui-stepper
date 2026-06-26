@@ -65,7 +65,15 @@
 ) {
 	// Accent & surfaces
 	@if $accent != null {
+		// Feed the single accent slot AND re-derive the role family locally, so a
+		// brand accent applied via this mixin on a custom selector recomputes
+		// `-emphasis` / `-subtle` / `-on` (the `:host` derivations do not cascade
+		// to a different selector). No token is duplicated — the slot stays the
+		// single source of truth.
 		--hub-stepper-accent: #{$accent};
+		--hub-stepper-accent-emphasis: color-mix(in oklch, var(--hub-stepper-accent) 80%, var(--hub-sys-color-ink, #212529));
+		--hub-stepper-accent-subtle: color-mix(in oklch, var(--hub-stepper-accent) 12%, var(--hub-sys-surface-page, #fff));
+		--hub-stepper-accent-on: oklch(from var(--hub-stepper-accent) clamp(0, (0.62 - l) * 1000, 1) 0 h);
 	}
 	@if $surface != null {
 		--hub-stepper-surface-color: #{$surface};
