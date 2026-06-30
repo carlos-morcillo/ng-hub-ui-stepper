@@ -69,6 +69,7 @@ This library is part of the **ng-hub-ui** ecosystem:
 - 🔢 **Multi-layout**: Supports Vertical, Sidebar, and RTL modes.
 - 🔄 **Smooth Transitions**: Built-in CSS animations.
 - 🧩 **Flexible Controls**: Use default buttons or project your own.
+- ✂️ **Opt-in title truncation + tooltip**: set `truncateTitles` to clip long nav titles (bounded by `--hub-stepper-nav-title-max-width`) and reveal the full text on hover — hub-ui tooltip by default, swappable with `provideHubTooltip`. Requires `ng-hub-ui-utils >= 22.6.0` + `@use 'ng-hub-ui-utils/styles/tooltip';`.
 
 ## Installation
 

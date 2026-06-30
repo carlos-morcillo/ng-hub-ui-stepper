@@ -368,3 +368,17 @@
 		--hub-stepper-accent: var(--hub-sys-color-#{$variant});
 	}
 }
+
+/* Opt-in truncation of nav step titles (`truncateTitles` input). Applied only
+   under the host modifier, so the default layout/wrapping is untouched. The
+   `[hubOverflowTooltip]` directive then surfaces the full title on hover when a
+   title actually overflows. `:host(...)` targets the host modifier under the
+   component's emulated encapsulation. */
+:host(.stepper--truncate-titles) .stepper__nav-title {
+	display: inline-block;
+	max-inline-size: var(--hub-stepper-nav-title-max-width, 12rem);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	vertical-align: bottom;
+}

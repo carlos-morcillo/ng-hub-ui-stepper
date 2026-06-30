@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.3.0] - 2026-06-30
+
+### Added
+
+- **Opt-in nav title truncation + tooltip.** New `truncateTitles` input on `hub-stepper`: when enabled, each nav step title is clipped to the new `--hub-stepper-nav-title-max-width` CSS variable (default `12rem`) with an ellipsis, and reveals its full text on hover when it overflows. The tooltip is **agnostic** — it defaults to the hub-ui tooltip (via `ng-hub-ui-utils`' `[hubOverflowTooltip]`) but is swappable with `provideHubTooltip(...)`. Off by default, so the standard nav layout is unchanged. Requires `ng-hub-ui-utils >= 22.6.0` and the tooltip styles (`@use 'ng-hub-ui-utils/styles/tooltip';`).
+
 ## [22.2.0] - 2026-06-26
 
 ### Added

@@ -114,9 +114,9 @@
     (click)="goTo(index)"
     >
     @if (title) {
-      <span class="stepper__nav-title">{{ title }}</span>
+      <span class="stepper__nav-title" [hubOverflowTooltip]="title">{{ title }}</span>
     } @else {
-      <span class="stepper__nav-title">Step {{ index + 1 }}</span>
+      <span class="stepper__nav-title" [hubOverflowTooltip]="'Step ' + (index + 1)">Step {{ index + 1 }}</span>
     }
   </button>
 </ng-template>

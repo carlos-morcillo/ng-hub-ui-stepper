@@ -16,7 +16,7 @@ import {
 	contentChildren
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
+import { HubOverflowTooltipDirective, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
@@ -36,12 +36,13 @@ const STEPPER_BUILT_IN_VARIANTS = new Set<string>(['primary', 'success', 'danger
 	templateUrl: './stepper.component.html',
 	styleUrls: ['./stepper.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
-	imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe],
+	imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe, HubOverflowTooltipDirective],
 	host: {
 		class: 'stepper',
 		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
 		'[class.stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
 		'[class.stepper--rtl]': 'isRtl()',
+		'[class.stepper--truncate-titles]': 'truncateTitles()',
 		'[attr.data-variant]': 'variant() ?? null',
 		'[style.--hub-stepper-accent]': 'customAccent()'
 	}
@@ -88,6 +89,15 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Optional custom label for the submit button. */
 	readonly submitLabel = input<string | null>(null);
+
+	/**
+	 * Opt-in truncation of the nav step titles. When `true`, each title is clipped
+	 * to `--hub-stepper-nav-title-max-width` (default `12rem`) with an ellipsis and,
+	 * if it overflows, exposes its full text as a tooltip (the hub-ui tooltip by
+	 * default; swappable with `provideHubTooltip`). Off by default, so the standard
+	 * nav layout is unchanged.
+	 */
+	readonly truncateTitles = input(false);
 
 	/** Emits once the user completes the last step. */
 	readonly completed = output<void>();
