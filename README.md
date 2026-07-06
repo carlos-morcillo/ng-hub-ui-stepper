@@ -214,7 +214,7 @@ Customize the component using CSS variables. For a complete list of available to
 
 ```css
 .my-stepper {
-  --hub-stepper-primary-color: #009ef7;
+  --hub-stepper-primary-color: #0d6efd;
   --hub-stepper-surface-color: #ffffff;
   --hub-stepper-gap: 1.5rem;
 }

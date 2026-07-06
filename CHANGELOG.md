@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.4.0] - 2026-07-06
+
+### Removed
+
+- **BREAKING — legacy `ng80-stepper` / `ng80-step` element selectors removed.** The components now match only `hub-stepper` / `hub-ui-stepper` and `hub-step` / `hub-ui-step`, aligning with the rest of the ng-hub-ui ecosystem (the `hub-ui-*` compatibility alias stays). Replace any `<ng80-stepper>` / `<ng80-step>` markup with `<hub-stepper>` / `<hub-step>`. (Major stays at `22` to track the supported Angular major; this breaking removal ships as a minor bump per the ecosystem's Angular-aligned versioning.)
+
+### Fixed
+
+- CSS variable fallbacks realigned to the ds light defaults (`--hub-sys-color-primary`: `#009ef7` → `#0d6efd`); fallbacks only apply when ng-hub-ui-ds is not loaded. The `transparent` fallback of `--hub-sys-surface-page` on the nav background is intentional degradation and stays unchanged.
+- Docs: `docs/css-variables-reference.md` default values resynchronized with the actual code declarations (now guarded by the repo-level `tokens-parity` check F).
+- Docs: the README theming example now uses the ds accent (`#0d6efd`) instead of the old-palette blue (`#009ef7`).
+
 ## [22.3.0] - 2026-06-30
 
 ### Added

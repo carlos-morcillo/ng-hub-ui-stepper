@@ -213,7 +213,7 @@ Personaliza el componente usando variables CSS. Para una lista completa de los t
 
 ```css
 .mi-stepper {
-  --hub-stepper-primary-color: #009ef7;
+  --hub-stepper-primary-color: #0d6efd;
   --hub-stepper-surface-color: #ffffff;
   --hub-stepper-gap: 1.5rem;
 }

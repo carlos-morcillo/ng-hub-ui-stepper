@@ -52,44 +52,44 @@ This allows:
 
 | Variable | Default | Description |
 |---|---|---|
-| `--hub-stepper-accent` | `var(--hub-sys-color-primary)` | Semantic accent driving the active step pill and the next / submit controls. Re-based by the `variant` input; `--hub-stepper-primary-color` and the active-pill tokens follow it. |
+| `--hub-stepper-accent` | `var(--hub-sys-color-primary, #0d6efd)` | Semantic accent driving the active step pill and the next / submit controls. Re-based by the `variant` input; `--hub-stepper-primary-color` and the active-pill tokens follow it. |
 | `--hub-stepper-primary-color` | `var(--hub-stepper-accent)` | Main theme color used for active steps and primary buttons. |
-| `--hub-stepper-background-color` | `var(--hub-sys-surface-elevated)` | Secondary background color for "back" buttons. |
-| `--hub-stepper-text-color` | `var(--hub-sys-text-primary)` | Base text color for labels and content. |
-| `--hub-stepper-border-color` | `var(--hub-sys-border-color-default)` | Border color for containers and controls. |
-| `--hub-stepper-surface-color` | `var(--hub-sys-surface-page)` | Main background color for the content area. |
-| `--hub-stepper-disabled-opacity` | `0.5` | Opacity for disabled controls. |
+| `--hub-stepper-background-color` | `var(--hub-sys-surface-elevated, #f8f9fa)` | Secondary background color for "back" buttons. |
+| `--hub-stepper-text-color` | `var(--hub-sys-text-primary, #212529)` | Base text color for labels and content. |
+| `--hub-stepper-border-color` | `var(--hub-sys-border-color-default, #dee2e6)` | Border color for containers and controls. |
+| `--hub-stepper-surface-color` | `var(--hub-sys-surface-page, #ffffff)` | Main background color for the content area. |
+| `--hub-stepper-disabled-opacity` | `var(--hub-sys-opacity-50, 0.5)` | Opacity for disabled controls. |
 
 ### Navigation
 
 | Variable | Default | Description |
 |---|---|---|
-| `--hub-stepper-nav-bg` | `transparent` | Background for the navigation container. |
+| `--hub-stepper-nav-bg` | `var(--hub-sys-surface-page, transparent)` | Background for the navigation container. |
 | `--hub-stepper-nav-padding-x` | `0` | Horizontal padding for the navigation container. |
 | `--hub-stepper-nav-padding-y` | `0` | Vertical padding for the navigation container. |
 | `--hub-stepper-nav-border-width` | `0` | Border width for the navigation container. |
-| `--hub-stepper-nav-link-color` | `#495057` | Text color for pending navigation links. |
+| `--hub-stepper-nav-link-color` | `var(--hub-sys-text-primary, #212529)` | Text color for pending navigation links. |
 | `--hub-stepper-nav-link-active-bg` | `var(--hub-stepper-accent)` | Background for the currently active nav step. |
-| `--hub-stepper-nav-link-active-color` | `#ffffff` | Text color for the currently active nav step. |
-| `--hub-stepper-nav-trigger-padding-y` | `0.5rem` | Vertical padding for nav triggers. |
-| `--hub-stepper-nav-trigger-padding-x` | `0.75rem` | Horizontal padding for nav triggers. |
+| `--hub-stepper-nav-link-active-color` | `var(--hub-stepper-accent-on, #ffffff)` | Text color for the currently active nav step. |
+| `--hub-stepper-nav-trigger-padding-y` | `var(--hub-ref-space-2, 0.5rem)` | Vertical padding for nav triggers. |
+| `--hub-stepper-nav-trigger-padding-x` | `var(--hub-ref-space-3, 1rem)` | Horizontal padding for nav triggers. |
 
 ### Controls & Buttons
 
 | Variable | Default | Description |
 |---|---|---|
 | `--hub-stepper-controls-justify` | `flex-end` | Horizontal alignment of action buttons. |
-| `--hub-stepper-controls-gap` | `0.5rem` | Spacing between controls. |
+| `--hub-stepper-controls-gap` | `var(--hub-ref-space-2, 0.5rem)` | Spacing between controls. |
 | `--hub-stepper-control-padding-y` | `0.375rem` | Vertical padding for action buttons. |
-| `--hub-stepper-control-padding-x` | `0.75rem` | Horizontal padding for action buttons. |
-| `--hub-stepper-control-font-size` | `0.875rem` | Font size for buttons. |
+| `--hub-stepper-control-padding-x` | `var(--hub-ref-space-3, 1rem)` | Horizontal padding for action buttons. |
+| `--hub-stepper-control-font-size` | `var(--hub-ref-font-size-sm, 0.875rem)` | Font size for buttons. |
 
 ### Layout & Spacing
 
 | Variable | Default | Description |
 |---|---|---|
-| `--hub-stepper-gap` | `1rem` | Gap between nav, content, and controls. |
-| `--hub-stepper-nav-gap` | `0.25rem` | Gap between individual nav items. |
+| `--hub-stepper-gap` | `var(--hub-ref-space-3, 1rem)` | Gap between nav, content, and controls. |
+| `--hub-stepper-nav-gap` | `var(--hub-ref-space-1, 0.25rem)` | Gap between individual nav items. |
 | `--hub-stepper-sidebar-width` | `clamp(160px, 20vw, 240px)` | Width of the navigation sidebar in `sidebar` layout. |
 | `--hub-stepper-content-padding-x` | `0` | Horizontal internal padding for the step content panel. |
 | `--hub-stepper-content-padding-y` | `0` | Vertical internal padding for the step content panel. |
@@ -98,9 +98,9 @@ This allows:
 
 | Variable | Default | Description |
 |---|---|---|
-| `--hub-stepper-animation-duration` | `260ms` | Duration of content transition animations. |
-| `--hub-stepper-animation-easing` | `ease` | Timing function for transitions. |
-| `--hub-stepper-animation-distance` | `18px` | Offset distance for sliding animations. |
+| `--hub-stepper-animation-duration` | `var(--hub-sys-transition-duration-base, 260ms)` | Duration of content transition animations. |
+| `--hub-stepper-animation-easing` | `var(--hub-sys-transition-timing-function-base, ease)` | Timing function for transitions. |
+| `--hub-stepper-animation-distance` | `var(--hub-ref-space-4, 1.5rem)` | Offset distance for sliding animations. |
 
 ---
 

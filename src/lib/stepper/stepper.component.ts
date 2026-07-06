@@ -32,7 +32,7 @@ import { StepperAnimationDirection, StepperLayout, StepperOptions } from './step
 const STEPPER_BUILT_IN_VARIANTS = new Set<string>(['primary', 'success', 'danger', 'warning', 'info']);
 
 @Component({
-	selector: 'hub-stepper, hub-ui-stepper, ng80-stepper',
+	selector: 'hub-stepper, hub-ui-stepper',
 	templateUrl: './stepper.component.html',
 	styleUrls: ['./stepper.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,

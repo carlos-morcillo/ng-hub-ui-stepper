@@ -18,7 +18,7 @@ const ANIMATION_DURATION = 256;
  * The component exposes metadata (title, disabled state, index) and a projected template as step content.
  */
 @Component({
-	selector: 'hub-step, hub-ui-step, ng80-step',
+	selector: 'hub-step, hub-ui-step',
 	templateUrl: './step.component.html',
 	styleUrls: ['./step.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
