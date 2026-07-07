@@ -2,6 +2,14 @@
 
 This document tracks all breaking changes in the `ng-hub-ui-stepper` library.
 
+## [22.5.0] - 2026-07-07
+
+### SCSS ships at `ng-hub-ui-stepper/styles` (packaging path)
+
+- **Change**: the theming mixin now builds to `dist/stepper/styles/...` instead of `dist/stepper/src/lib/styles/...`, and a `styles/index.scss` root entry forwards it.
+- **Impact**: a `@use` that reached into the old `src/lib/styles/...` path no longer resolves.
+- **Migration**: `@use 'ng-hub-ui-stepper/styles' as *;`
+
 ## Version 22.1.0
 
 ### Removed shorthand padding tokens

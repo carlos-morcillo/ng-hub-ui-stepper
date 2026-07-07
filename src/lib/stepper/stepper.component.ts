@@ -16,7 +16,7 @@ import {
 	contentChildren
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { HubOverflowTooltipDirective, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
+import { HubOverflowTooltipDirective, resolveHubAccent, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
@@ -75,10 +75,18 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	/**
 	 * Inline accent for custom (non-built-in) variants — the built-in five are
 	 * resolved by the SCSS `@each` loop, so this returns `null` for them.
+	 *
+	 * Any custom value is accepted: a bareword (semantic name / registered accent /
+	 * CSS named colour) resolves to `var(--hub-sys-color-<v>, <v>)` — the design-system
+	 * token with the raw word as fallback — while a literal `#hex` / `rgb()` /
+	 * `oklch()` / `var()` is passed through unchanged.
 	 */
 	protected readonly customAccent = computed(() => {
-		const v = this.variant();
-		return v && !STEPPER_BUILT_IN_VARIANTS.has(v) ? `var(--hub-sys-color-${v})` : null;
+		const v = this.variant()?.trim();
+		if (!v) {
+			return null;
+		}
+		return STEPPER_BUILT_IN_VARIANTS.has(v) ? null : resolveHubAccent(v);
 	});
 
 	/** Optional custom label for the back button. */

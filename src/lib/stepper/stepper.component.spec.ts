@@ -143,4 +143,22 @@ describe('StepperComponent', () => {
 		disabledFixture.detectChanges();
 		expect(disabledStepper.currentIndex()).toBe(0);
 	});
+
+	it('resolves a custom semantic variant to the ds token with a raw fallback', () => {
+		const accentFixture = TestBed.createComponent(StepperComponent);
+		accentFixture.componentRef.setInput('variant', 'secondary');
+		accentFixture.detectChanges();
+
+		expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe(
+			'var(--hub-sys-color-secondary, secondary)'
+		);
+	});
+
+	it('passes a literal colour variant through unchanged', () => {
+		const accentFixture = TestBed.createComponent(StepperComponent);
+		accentFixture.componentRef.setInput('variant', '#ff0000');
+		accentFixture.detectChanges();
+
+		expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe('#ff0000');
+	});
 });

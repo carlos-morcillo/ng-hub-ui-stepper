@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.5.0] - 2026-07-07
+
+### Changed
+
+- **BREAKING (packaging) — SCSS ships at `ng-hub-ui-stepper/styles`.** The theme mixin now builds to `dist/stepper/styles/...` (was `dist/stepper/src/lib/styles/...`), so `@use 'ng-hub-ui-stepper/styles'` resolves. Update any `@use` that reached into `src/lib/styles`.
+
+- **`<hub-stepper>` `variant` accepts ANY colour.** On top of the built-in semantic accents, the input now also accepts a **registered custom accent** and a **literal colour** (`#ff0000`, `rgb(...)`, `oklch(...)`, a CSS named colour), resolved through the shared `resolveHubAccent` helper (imported from `ng-hub-ui-utils`): a bareword becomes `var(--hub-sys-color-<name>, <name>)`; a literal is used as-is. The single `--hub-<comp>-accent` slot derives the rest of the family, so built-in colours are unchanged.
+- **Internal — host bindings moved to the `host` metadata object.** `@HostBinding` / `@HostListener` decorators were replaced by the `host` object in the component/directive metadata (Angular style guide). No public API or behaviour change.
+
 ## [22.4.0] - 2026-07-06
 
 ### Removed

@@ -1,0 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────
+// ng-hub-ui-stepper — theming entry
+// ─────────────────────────────────────────────────────────────────────────
+// Opt-in one-call theming mixin, forwarded so consumers can `@use` it from the
+// package root:
+//
+//   @use 'ng-hub-ui-stepper/styles' as *;
+// ─────────────────────────────────────────────────────────────────────────
+
+@forward 'mixins/stepper-theme';
