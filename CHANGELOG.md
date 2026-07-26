@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.5.1] - 2026-07-26
+
+### Fixed
+
+- **`[stepTrigger]` never matched on its own.** The `StepTriggerDirective` selector used a descendant combinator (`'[hubStepTrigger] [stepTrigger]'`) instead of a comma, so a lone `<ng-template hubStepTrigger>` (or a lone `[stepTrigger]`) never activated the directive. The selector is now `'[hubStepTrigger], [stepTrigger]'`, so both attributes work independently.
+
+### Changed
+
+- Declared the real `ng-hub-ui-utils` peer range: `>=22.7.0`. The library imports `resolveHubAccent`, introduced in utils 22.7.0; the previous `>=1.2.0` floor allowed installs that compile but fail at runtime.
+
 ## [22.5.0] - 2026-07-07
 
 ### Changed
