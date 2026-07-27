@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- **`[stepTrigger]` never matched on its own.** The `StepTriggerDirective` selector used a descendant combinator (`'[hubStepTrigger] [stepTrigger]'`) instead of a comma, so a lone `<ng-template hubStepTrigger>` (or a lone `[stepTrigger]`) never activated the directive. The selector is now `'[hubStepTrigger], [stepTrigger]'`, so both attributes work independently.
+- **`StepTriggerDirective` never instantiated.** Its selector used a descendant combinator (`'[hubStepTrigger] [stepTrigger]'`) instead of a comma, so neither attribute alone ever matched. The selector is now `'[hubStepTrigger], [stepTrigger]'` and the directive captures its `TemplateRef` when applied. Note: the stepper does not yet render these trigger templates anywhere — this is groundwork that makes the directive instantiable and queryable; wiring it into the step rail is tracked as follow-up work.
 
 ### Changed
 
