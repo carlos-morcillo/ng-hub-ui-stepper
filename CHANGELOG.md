@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.6.0] - 2026-07-28
+
+### Added
+
+- **WAI-ARIA tablist semantics on the step rail.** The default nav now implements the APG tabs pattern: the rail list is `role="tablist"` with `aria-orientation` (`horizontal` in the default layout, `vertical` in the sidebar layout) and an accessible name; each step trigger is `role="tab"` with `aria-selected`, `aria-current="step"` on the active step, `aria-disabled` on non-navigable steps, and `aria-controls` pointing at the step content panel, now `role="tabpanel"` with `aria-labelledby` back to its tab through stable per-instance generated ids.
+- **Keyboard navigation on the step rail.** Roving tabindex makes the rail a single Tab stop: ArrowRight/ArrowLeft (or ArrowDown/ArrowUp) move focus between enabled step tabs — disabled steps are skipped, wrapping around — Home/End jump to the first/last enabled tab, and Enter/Space activates the focused step under exactly the same permission model as clicking its trigger (`canNavigateTo`: any enabled step is reachable). Moving focus never changes the active step (manual activation).
+- New `railLabel` input: accessible name of the step rail tablist. Defaults to `'Steps'`.
+
+### Fixed
+
+- The default rail triggers now declare `type="button"`, so a stepper rendered inside a `<form>` no longer submits it when a step trigger is clicked.
+
 ## [22.5.1] - 2026-07-26
 
 ### Fixed
