@@ -65,10 +65,12 @@ Esta librería forma parte del ecosistema **ng-hub-ui**:
 
 - 🚀 **Angular 21+ Built-in**: Utiliza Signals y la nueva sintaxis de control de flujo.
 - 🎨 **Altamente Personalizable**: Fácil de tematizar mediante variables CSS y plantillas personalizadas.
-- ♿ **Accesible**: Roles ARIA adecuados y navegación por teclado.
+- ♿ **Accesible**: Riel de pasos WAI-ARIA `tablist` con navegación completa por teclado.
 - 🔢 **Multi-layout**: Soporta modos Vertical, Lateral (Sidebar) y RTL.
 - 🔄 **Transiciones Suaves**: Animaciones CSS integradas.
 - 🧩 **Controles Flexibles**: Usa botones por defecto o proyecta los tuyos propios.
+
+> ♿ **Modelo de accesibilidad**: el riel de pasos es un `tablist` WAI-ARIA (cada disparador un `tab`, cada contenido de paso un `tabpanel`) con tabindex itinerante, de modo que es una única parada de tabulación. Las flechas mueven el foco entre los pasos habilitados (saltando los deshabilitados, con envolvimiento), `Home`/`End` saltan al primer/último paso habilitado y `Enter`/`Space` activa el paso enfocado bajo las mismas reglas que hacer clic en él. El nombre accesible del riel proviene del input `railLabel` (por defecto `'Steps'`).
 
 ## Instalación
 
@@ -174,6 +176,7 @@ Proyecta tus propios botones para sobrescribir el pie de página por defecto.
 | `backLabel` | `string` | `'Back'` | Etiqueta para el botón de retroceso. |
 | `continueLabel` | `string` | `'Continue'` | Etiqueta para el botón de continuar. |
 | `submitLabel` | `string` | `'Submit'` | Etiqueta para el botón de envío final. |
+| `railLabel` | `string` | `'Steps'` | Nombre accesible del `tablist` del riel de pasos. |
 | `variant` | `string` | `'primary'` | Acento semántico para la píldora del paso activo y los controles de siguiente / enviar. Valores integrados: `primary`, `success`, `danger`, `warning`, `info`. Cualquier otra cadena también se acepta y se resuelve a través de `--hub-sys-color-<variant>`. |
 | `options` | `StepperOptions` | `{}` | Configuración visual y de diseño. |
 

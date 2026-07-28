@@ -65,11 +65,13 @@ This library is part of the **ng-hub-ui** ecosystem:
 
 - 🚀 **Angular 21+ Built-in**: Uses Signals and new control flow syntax.
 - 🎨 **Highly Customizable**: Easy to theme via CSS variables and custom templates.
-- ♿ **Accessible**: Proper ARIA roles and keyboard navigation.
+- ♿ **Accessible**: WAI-ARIA tablist rail with full keyboard navigation.
 - 🔢 **Multi-layout**: Supports Vertical, Sidebar, and RTL modes.
 - 🔄 **Smooth Transitions**: Built-in CSS animations.
 - 🧩 **Flexible Controls**: Use default buttons or project your own.
 - ✂️ **Opt-in title truncation + tooltip**: set `truncateTitles` to clip long nav titles (bounded by `--hub-stepper-nav-title-max-width`) and reveal the full text on hover — hub-ui tooltip by default, swappable with `provideHubTooltip`. Requires `ng-hub-ui-utils >= 22.6.0` + `@use 'ng-hub-ui-utils/styles/tooltip';`.
+
+> ♿ **Accessibility model**: the step rail is a WAI-ARIA `tablist` (each trigger a `tab`, each step content a `tabpanel`) with a roving tabindex, so it is a single Tab stop. Arrow keys move focus between enabled steps (skipping disabled ones, wrapping), `Home`/`End` jump to the first/last enabled step, and `Enter`/`Space` activates the focused step under the same rules as clicking it. The rail's accessible name comes from the `railLabel` input (default `'Steps'`).
 
 ## Installation
 
@@ -175,6 +177,7 @@ Project your own buttons to override the default footer.
 | `backLabel` | `string` | `'Back'` | Label for the back button. |
 | `continueLabel` | `string` | `'Continue'` | Label for the continue button. |
 | `submitLabel` | `string` | `'Submit'` | Label for the submit button. |
+| `railLabel` | `string` | `'Steps'` | Accessible name of the step rail tablist. |
 | `variant` | `string` | `'primary'` | Semantic accent for the active step pill and the next / submit controls. Built-in values: `primary`, `success`, `danger`, `warning`, `info`. Any other string is also accepted and resolves through `--hub-sys-color-<variant>`. |
 | `options` | `StepperOptions` | `{}` | Visual and layout configuration. |
 

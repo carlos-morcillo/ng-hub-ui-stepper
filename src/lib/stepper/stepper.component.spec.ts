@@ -4,6 +4,7 @@ import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHubTranslation } from 'ng-hub-ui-utils';
 import { StepComponent } from '../step/step.component';
+import { StepperLayout } from './stepper-options';
 import { StepperComponent } from './stepper.component';
 
 @Component({
@@ -20,6 +21,16 @@ import { StepperComponent } from './stepper.component';
 class TestHostComponent {
 	readonly stepper = viewChild.required<StepperComponent>('stepper');
 	secondStepDisabled = false;
+}
+
+/**
+ * Dispatches a cancelable keydown event with the given key on an element.
+ *
+ * @param element Target element.
+ * @param key `KeyboardEvent.key` value to dispatch.
+ */
+function pressKey(element: HTMLElement, key: string): void {
+	element.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
 }
 
 describe('StepperComponent', () => {
@@ -160,5 +171,163 @@ describe('StepperComponent', () => {
 		accentFixture.detectChanges();
 
 		expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe('#ff0000');
+	});
+
+	describe('WAI-ARIA tablist semantics', () => {
+		it('renders the rail as a horizontal tablist of tabs with a tabpanel', () => {
+			const tablist: HTMLElement = fixture.nativeElement.querySelector('.stepper__nav-list');
+			expect(tablist.getAttribute('role')).toBe('tablist');
+			expect(tablist.getAttribute('aria-orientation')).toBe('horizontal');
+			expect(tablist.getAttribute('aria-label')).toBe('Steps');
+
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			expect(tabs.length).toBe(3);
+			tabs.forEach((tab) => expect(tab.getAttribute('role')).toBe('tab'));
+
+			const panel: HTMLElement = fixture.nativeElement.querySelector('.stepper__content-panel');
+			expect(panel.getAttribute('role')).toBe('tabpanel');
+		});
+
+		it('reflects the sidebar layout as a vertical tablist orientation', () => {
+			const sidebarFixture = TestBed.createComponent(StepperComponent);
+			sidebarFixture.componentRef.setInput('options', { layout: StepperLayout.Sidebar });
+			sidebarFixture.detectChanges();
+
+			const tablist: HTMLElement = sidebarFixture.nativeElement.querySelector('.stepper__nav-list');
+			expect(tablist.getAttribute('aria-orientation')).toBe('vertical');
+		});
+
+		it('labels the rail with the railLabel input', () => {
+			const labelledFixture = TestBed.createComponent(StepperComponent);
+			labelledFixture.componentRef.setInput('railLabel', 'Checkout steps');
+			labelledFixture.detectChanges();
+
+			const tablist: HTMLElement = labelledFixture.nativeElement.querySelector('.stepper__nav-list');
+			expect(tablist.getAttribute('aria-label')).toBe('Checkout steps');
+		});
+
+		it('marks the active step tab with aria-selected and aria-current="step"', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			expect(tabs[0].getAttribute('aria-selected')).toBe('true');
+			expect(tabs[0].getAttribute('aria-current')).toBe('step');
+			expect(tabs[1].getAttribute('aria-selected')).toBe('false');
+			expect(tabs[1].hasAttribute('aria-current')).toBe(false);
+
+			stepperComponent.goToNext();
+			fixture.detectChanges();
+
+			expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+			expect(tabs[1].getAttribute('aria-current')).toBe('step');
+			expect(tabs[0].getAttribute('aria-selected')).toBe('false');
+			expect(tabs[0].hasAttribute('aria-current')).toBe(false);
+		});
+
+		it('wires each tab to its panel with stable generated ids', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			const panel: HTMLElement = fixture.nativeElement.querySelector('.stepper__content-panel');
+
+			expect(tabs[0].id).toMatch(/^hub-stepper-\d+-tab-0$/);
+			expect(tabs[0].getAttribute('aria-controls')).toBe(panel.id);
+			expect(panel.getAttribute('aria-labelledby')).toBe(tabs[0].id);
+
+			stepperComponent.goToNext();
+			fixture.detectChanges();
+
+			expect(panel.id).toMatch(/^hub-stepper-\d+-panel-1$/);
+			expect(tabs[1].getAttribute('aria-controls')).toBe(panel.id);
+			expect(panel.getAttribute('aria-labelledby')).toBe(tabs[1].id);
+		});
+
+		it('exposes aria-disabled on non-navigable step tabs', () => {
+			const disabledFixture = TestBed.createComponent(TestHostComponent);
+			disabledFixture.componentInstance.secondStepDisabled = true;
+			disabledFixture.detectChanges();
+
+			const tabs: NodeListOf<HTMLElement> = disabledFixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			expect(tabs[1].getAttribute('aria-disabled')).toBe('true');
+			expect(tabs[0].hasAttribute('aria-disabled')).toBe(false);
+			expect(tabs[2].hasAttribute('aria-disabled')).toBe(false);
+		});
+	});
+
+	describe('rail keyboard navigation', () => {
+		it('applies a roving tabindex with the active tab as the single tab stop', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			expect(tabs[0].getAttribute('tabindex')).toBe('0');
+			expect(tabs[1].getAttribute('tabindex')).toBe('-1');
+			expect(tabs[2].getAttribute('tabindex')).toBe('-1');
+		});
+
+		it('moves focus (without activating) to the next tab on ArrowRight', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			tabs[0].focus();
+			pressKey(tabs[0], 'ArrowRight');
+			fixture.detectChanges();
+
+			expect(document.activeElement).toBe(tabs[1]);
+			expect(tabs[1].getAttribute('tabindex')).toBe('0');
+			expect(tabs[0].getAttribute('tabindex')).toBe('-1');
+			expect(stepperComponent.currentIndex()).toBe(0);
+		});
+
+		it('moves focus back on ArrowLeft', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			tabs[0].focus();
+			pressKey(tabs[0], 'ArrowRight');
+			pressKey(tabs[1], 'ArrowLeft');
+			fixture.detectChanges();
+
+			expect(document.activeElement).toBe(tabs[0]);
+			expect(stepperComponent.currentIndex()).toBe(0);
+		});
+
+		it('skips disabled steps when moving focus with the arrow keys', () => {
+			const disabledFixture = TestBed.createComponent(TestHostComponent);
+			disabledFixture.componentInstance.secondStepDisabled = true;
+			disabledFixture.detectChanges();
+
+			const tabs: NodeListOf<HTMLElement> = disabledFixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			tabs[0].focus();
+			pressKey(tabs[0], 'ArrowRight');
+			disabledFixture.detectChanges();
+
+			expect(document.activeElement).toBe(tabs[2]);
+		});
+
+		it('jumps focus to the last and first enabled tab on End and Home', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			tabs[0].focus();
+			pressKey(tabs[0], 'End');
+			fixture.detectChanges();
+			expect(document.activeElement).toBe(tabs[2]);
+
+			pressKey(tabs[2], 'Home');
+			fixture.detectChanges();
+			expect(document.activeElement).toBe(tabs[0]);
+		});
+
+		it('activates the focused tab on Enter and Space when navigation is permitted', () => {
+			const tabs: NodeListOf<HTMLElement> = fixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			pressKey(tabs[2], 'Enter');
+			fixture.detectChanges();
+			expect(stepperComponent.currentIndex()).toBe(2);
+
+			pressKey(tabs[0], ' ');
+			fixture.detectChanges();
+			expect(stepperComponent.currentIndex()).toBe(0);
+		});
+
+		it('does not activate a disabled step on Enter', () => {
+			const disabledFixture = TestBed.createComponent(TestHostComponent);
+			disabledFixture.componentInstance.secondStepDisabled = true;
+			disabledFixture.detectChanges();
+			const disabledStepper = disabledFixture.componentInstance.stepper();
+
+			const tabs: NodeListOf<HTMLElement> = disabledFixture.nativeElement.querySelectorAll('.stepper__nav-trigger');
+			pressKey(tabs[1], 'Enter');
+			disabledFixture.detectChanges();
+
+			expect(disabledStepper.currentIndex()).toBe(0);
+		});
 	});
 });

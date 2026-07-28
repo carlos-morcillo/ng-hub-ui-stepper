@@ -31,6 +31,9 @@ import { StepperAnimationDirection, StepperLayout, StepperOptions } from './step
 /** Variants with exact design-system token coverage via the SCSS `@each` loop. */
 const STEPPER_BUILT_IN_VARIANTS = new Set<string>(['primary', 'success', 'danger', 'warning', 'info']);
 
+/** Monotonic counter used to build unique, stable per-instance ARIA ids. */
+let nextStepperInstanceId = 0;
+
 @Component({
 	selector: 'hub-stepper, hub-ui-stepper',
 	templateUrl: './stepper.component.html',
@@ -52,6 +55,9 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	#hostRef = inject(ElementRef<HTMLElement>);
 	#animationFrameId: number | null = null;
 
+	/** Unique per-instance token used to build stable ARIA ids for tabs and panels. */
+	readonly #instanceId = nextStepperInstanceId++;
+
 	/** Exposes layout enum values to the template. */
 	readonly StepperLayout = StepperLayout;
 
@@ -63,6 +69,13 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 
 	/** Stores transition direction used by the CSS animation classes. */
 	readonly animationDirection = signal<StepperAnimationDirection>(StepperAnimationDirection.Forward);
+
+	/**
+	 * Index of the rail tab holding the roving tabindex while the user moves
+	 * focus with the keyboard without activating a step, or `null` when the
+	 * tab stop follows the active step.
+	 */
+	protected readonly focusedIndex = signal<number | null>(null);
 
 	/**
 	 * Semantic accent of the stepper: `'primary'` · `'success'` · `'danger'` ·
@@ -106,6 +119,12 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 * nav layout is unchanged.
 	 */
 	readonly truncateTitles = input(false);
+
+	/**
+	 * Accessible name of the step rail tablist, announced by assistive
+	 * technologies. Defaults to `'Steps'`.
+	 */
+	readonly railLabel = input('Steps');
 
 	/** Emits once the user completes the last step. */
 	readonly completed = output<void>();
@@ -157,6 +176,155 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	 */
 	isRtl(): boolean {
 		return this.options()?.rtl ?? false;
+	}
+
+	/**
+	 * Returns the ARIA orientation of the step rail tablist. The rail lays out
+	 * horizontally in the default (vertical) layout and vertically in the
+	 * sidebar layout.
+	 *
+	 * @returns `'vertical'` for the sidebar layout, `'horizontal'` otherwise.
+	 */
+	protected railOrientation(): 'horizontal' | 'vertical' {
+		return this.layout() === StepperLayout.Sidebar ? 'vertical' : 'horizontal';
+	}
+
+	/**
+	 * Returns the stable DOM id of the rail tab for the given step index.
+	 *
+	 * @param index Step index.
+	 * @returns Unique, per-instance tab id.
+	 */
+	protected tabId(index: number): string {
+		return `hub-stepper-${this.#instanceId}-tab-${index}`;
+	}
+
+	/**
+	 * Returns the stable DOM id of the content panel for the given step index.
+	 *
+	 * @param index Step index.
+	 * @returns Unique, per-instance panel id.
+	 */
+	protected panelId(index: number): string {
+		return `hub-stepper-${this.#instanceId}-panel-${index}`;
+	}
+
+	/**
+	 * Roving `tabindex` for the rail tab at `index`: `0` for the focused tab
+	 * (or the active step when no tab holds transient keyboard focus), `-1`
+	 * for the rest — so the rail is a single Tab stop and the arrow keys move
+	 * within it.
+	 *
+	 * @param index Step index of the tab.
+	 * @returns `0` for the current tab stop, `-1` otherwise.
+	 */
+	protected tabIndexFor(index: number): number {
+		return (this.focusedIndex() ?? this.currentIndex()) === index ? 0 : -1;
+	}
+
+	/**
+	 * Keyboard navigation for the step rail (WAI-ARIA tabs pattern, manual
+	 * activation): ArrowRight/ArrowDown and ArrowLeft/ArrowUp move focus
+	 * between enabled step tabs (wrapping, skipping disabled steps), Home/End
+	 * jump to the first/last enabled tab, and Enter/Space activates the
+	 * focused step under the same permission model as clicking its trigger
+	 * (`canNavigateTo`). Moving focus never changes the active step.
+	 *
+	 * @param event Keyboard event fired on a rail tab.
+	 * @param index Step index of the tab that received the event.
+	 */
+	protected onRailKeydown(event: KeyboardEvent, index: number): void {
+		let target: number;
+		switch (event.key) {
+			case 'ArrowRight':
+			case 'ArrowDown':
+				target = this.#stepEnabledIndex(index, 1);
+				break;
+			case 'ArrowLeft':
+			case 'ArrowUp':
+				target = this.#stepEnabledIndex(index, -1);
+				break;
+			case 'Home':
+				target = this.#firstEnabledIndex();
+				break;
+			case 'End':
+				target = this.#lastEnabledIndex();
+				break;
+			case 'Enter':
+			case ' ':
+				event.preventDefault();
+				if (this.canNavigateTo(index)) {
+					this.goTo(index);
+				}
+				return;
+			default:
+				return;
+		}
+		if (target < 0) {
+			return;
+		}
+		event.preventDefault();
+		this.#focusTab(target);
+	}
+
+	/**
+	 * Returns the next enabled step index from `index` in `direction`,
+	 * wrapping around the rail.
+	 *
+	 * @param index Starting step index.
+	 * @param direction `1` to search forward, `-1` to search backward.
+	 * @returns The nearest enabled index, or `-1` when there are no steps.
+	 */
+	#stepEnabledIndex(index: number, direction: 1 | -1): number {
+		const steps = this.steps();
+		const count = steps.length;
+		if (!count) {
+			return -1;
+		}
+		for (let step = 1; step <= count; step += 1) {
+			const candidate = (((index + direction * step) % count) + count) % count;
+			if (!steps[candidate].disabled()) {
+				return candidate;
+			}
+		}
+		return index;
+	}
+
+	/**
+	 * Returns the index of the first enabled step.
+	 *
+	 * @returns First enabled index, or `-1` when every step is disabled.
+	 */
+	#firstEnabledIndex(): number {
+		return this.steps().findIndex((step) => !step.disabled());
+	}
+
+	/**
+	 * Returns the index of the last enabled step.
+	 *
+	 * @returns Last enabled index, or `-1` when every step is disabled.
+	 */
+	#lastEnabledIndex(): number {
+		const steps = this.steps();
+		for (let i = steps.length - 1; i >= 0; i -= 1) {
+			if (!steps[i].disabled()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * Moves the roving tabindex and DOM focus to the rail tab at `index`.
+	 *
+	 * @param index Step index of the tab to focus.
+	 */
+	#focusTab(index: number): void {
+		this.focusedIndex.set(index);
+		this.#cdr.detectChanges();
+		const host: HTMLElement = this.#hostRef.nativeElement;
+		const triggers = host.querySelectorAll<HTMLElement>('.stepper__nav-trigger');
+		triggers[index]?.focus();
 	}
 
 	/** Returns the active step component instance or `null` when unavailable. */
@@ -223,6 +391,7 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 			}
 			this.animationDirection.set(index > previousIndex ? StepperAnimationDirection.Forward : StepperAnimationDirection.Backward);
 			this.currentIndex.set(index);
+			this.focusedIndex.set(null);
 			this.playContentTransition();
 			this.#cdr.detectChanges();
 			if (index > previousIndex) {

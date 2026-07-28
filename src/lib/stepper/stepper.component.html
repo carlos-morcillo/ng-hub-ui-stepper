@@ -15,7 +15,13 @@
   [class.stepper__content--forward]="isForwardAnimation()"
   [class.stepper__content--backward]="isBackwardAnimation()"
 >
-  <div class="stepper__content-panel" (animationend)="onContentAnimationEnd($event)">
+  <div
+    class="stepper__content-panel"
+    role="tabpanel"
+    [id]="panelId(currentIndex())"
+    [attr.aria-labelledby]="tabId(currentIndex())"
+    (animationend)="onContentAnimationEnd($event)"
+  >
     <ng-container
       [ngTemplateOutlet]="currentStep?.innerTemplate()"
     ></ng-container>
@@ -78,9 +84,14 @@
 
 <!-- begin:default-nav -->
 <ng-template #defaultNavTpt let-steps="steps" let-currentIndex="currentIndex">
-  <ul class="stepper__nav-list">
+  <ul
+    class="stepper__nav-list"
+    role="tablist"
+    [attr.aria-orientation]="railOrientation()"
+    [attr.aria-label]="railLabel()"
+  >
     @for (step of steps; track $index; let i = $index) {
-      <li class="stepper__nav-item">
+      <li class="stepper__nav-item" role="presentation">
         <ng-container
 				[ngTemplateOutlet]="
 					defaultNavTriggerTpt
@@ -107,11 +118,20 @@
   let-isCompleted="isCompleted"
   >
   <button
+    type="button"
     class="stepper__nav-trigger"
+    role="tab"
+    [id]="tabId(index)"
     [class.stepper__nav-trigger--current]="isCurrent"
     [class.stepper__nav-trigger--completed]="isCompleted"
+    [attr.aria-selected]="isCurrent"
+    [attr.aria-current]="isCurrent ? 'step' : null"
+    [attr.aria-controls]="panelId(index)"
+    [attr.aria-disabled]="canNavigateTo(index) ? null : true"
+    [attr.tabindex]="tabIndexFor(index)"
     [disabled]="!canNavigateTo(index)"
     (click)="goTo(index)"
+    (keydown)="onRailKeydown($event, index)"
     >
     @if (title) {
       <span class="stepper__nav-title" [hubOverflowTooltip]="title">{{ title }}</span>
