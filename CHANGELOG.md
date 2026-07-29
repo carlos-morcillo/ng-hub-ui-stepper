@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.7.0] - 2026-07-29
+
+### Added
+
+- **`--hub-stepper-indicator-size`** — the canonical step-indicator diameter, `calc(var(--hub-ref-space-3, 1rem) * 2)` by default. The built-in nav renders text-only pill triggers and draws no indicator; this token is the published metric that custom trigger templates and companion step/lifecycle tracks read, so those UIs stop hard-coding `2rem`/`2.5rem` literals — and, being space-derived, a density re-theme moves the indicator together with the paddings and font sizes that already scale (upstream report).
+
 ## [22.6.0] - 2026-07-28
 
 ### Added

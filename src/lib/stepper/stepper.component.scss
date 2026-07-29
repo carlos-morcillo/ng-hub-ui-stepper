@@ -36,6 +36,11 @@
 	--hub-stepper-nav-trigger-padding-x: var(--hub-ref-space-3, 1rem);
 	--hub-stepper-nav-trigger-font-size: var(--hub-ref-font-size-sm, 0.875rem);
 	--hub-stepper-nav-trigger-line-height: var(--hub-ref-line-height-sm, 1.25);
+	/* Canonical step-indicator diameter. The default nav renders text-only pill
+	   triggers and draws no indicator; this is the published metric that custom
+	   trigger templates and companion step/lifecycle tracks read, derived from
+	   the space scale so a density re-theme moves it with the rest. */
+	--hub-stepper-indicator-size: calc(var(--hub-ref-space-3, 1rem) * 2);
 	--hub-stepper-controls-justify: flex-end;
 	--hub-stepper-controls-gap: var(--hub-ref-space-2, 0.5rem);
 	--hub-stepper-control-padding-y: 0.375rem;
