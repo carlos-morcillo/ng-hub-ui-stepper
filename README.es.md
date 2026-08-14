@@ -210,6 +210,15 @@ interface StepperOptions {
 }
 ```
 
+## Internacionalización
+
+Las etiquetas integradas de atrás, continuar y enviar usan `TranslatePipe` de `ng-hub-ui-utils`. Configura `provideHubTranslationAdapter()` una sola vez en `app.config.ts`; su diccionario reactivo actualiza la navegación automáticamente.
+
+```typescript
+// La fuente del adaptador proporciona el diccionario activo a HubTranslationService.
+// Claves esperadas: BACK, CONTINUE y SUBMIT.
+```
+
 ## Estilos
 
 Personaliza el componente usando variables CSS. Para una lista completa de los tokens disponibles, consulta la [Referencia de Variables CSS](docs/css-variables-reference.md).

@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.8.0] - 2026-08-14
+
+### Changed
+
+- **Default action labels now resolve `HUBUI.STEPPER.*` before the legacy flat keys.** The component provides the namespace through `HUB_TRANSLATION_PREFIX`, so an application dictionary can feed the built-in navigation labels via `provideHubTranslationAdapter()` without reserving generic top-level keys. Existing flat dictionaries keep working — the bare key is still the fallback.
+
+### Added
+
+- README documentation for the application-wide translation adapter (`provideHubTranslationAdapter()` from `ng-hub-ui-utils`).
+
+### Removed
+
+- **Removed the `@angular/animations` peer dependency.** The package is deprecated upstream and the library never used it. Applications that installed it only for `ng-hub-ui-stepper` can drop it.
+
 ## [22.7.1] - 2026-08-08
 
 ### Fixed

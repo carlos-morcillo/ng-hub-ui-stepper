@@ -1,6 +1,6 @@
 {
   "name": "ng-hub-ui-stepper",
-  "version": "22.7.1",
+  "version": "22.8.0",
   "description": "A flexible and customizable stepper component for Angular applications",
   "keywords": [
     "angular",
@@ -28,10 +28,9 @@
   },
   "homepage": "https://hubui.dev/",
   "peerDependencies": {
-    "@angular/animations": ">=21.1.2",
     "@angular/common": ">=21.1.2",
     "@angular/core": ">=21.1.2",
-    "ng-hub-ui-utils": ">=22.7.0"
+    "ng-hub-ui-utils": ">=22.8.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"

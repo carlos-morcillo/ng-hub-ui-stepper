@@ -16,7 +16,7 @@ import {
 	contentChildren
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { HubOverflowTooltipDirective, resolveHubAccent, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
+import { HUB_TRANSLATION_PREFIX, HubOverflowTooltipDirective, resolveHubAccent, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
@@ -40,6 +40,7 @@ let nextStepperInstanceId = 0;
 	styleUrls: ['./stepper.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe, HubOverflowTooltipDirective],
+	providers: [{ provide: HUB_TRANSLATION_PREFIX, useValue: 'HUBUI.STEPPER' }],
 	host: {
 		class: 'stepper',
 		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',

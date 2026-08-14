@@ -211,6 +211,15 @@ interface StepperOptions {
 }
 ```
 
+## Internationalization
+
+The built-in back, continue and submit labels use `TranslatePipe` from `ng-hub-ui-utils`. Configure `provideHubTranslationAdapter()` once in `app.config.ts`; its reactive dictionary updates the rendered navigation automatically.
+
+```typescript
+// The adapter source supplies the active dictionary to HubTranslationService.
+// Expected keys: BACK, CONTINUE and SUBMIT.
+```
+
 ## Styling
 
 Customize the component using CSS variables. For a complete list of available tokens, see the [CSS Variables Reference](docs/css-variables-reference.md).
