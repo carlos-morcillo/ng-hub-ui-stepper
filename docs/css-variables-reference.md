@@ -90,7 +90,7 @@ This allows:
 |---|---|---|
 | `--hub-stepper-gap` | `var(--hub-ref-space-3, 1rem)` | Gap between nav, content, and controls. |
 | `--hub-stepper-nav-gap` | `var(--hub-ref-space-1, 0.25rem)` | Gap between individual nav items. |
-| `--hub-stepper-sidebar-width` | `clamp(160px, 20vw, 240px)` | Width of the navigation sidebar in `sidebar` layout. |
+| `--hub-stepper-sidebar-width` | `clamp(var(--hub-stepper-sidebar-min-width), var(--hub-stepper-sidebar-ideal-width), var(--hub-stepper-sidebar-max-width))` | Width of the navigation sidebar in `sidebar` layout. |
 | `--hub-stepper-content-padding-x` | `0` | Horizontal internal padding for the step content panel. |
 | `--hub-stepper-content-padding-y` | `0` | Vertical internal padding for the step content panel. |
 
