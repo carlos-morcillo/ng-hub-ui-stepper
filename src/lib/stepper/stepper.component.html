@@ -1,143 +1,128 @@
 <!--begin::Nav-->
 <nav class="stepper__nav">
-  <ng-container
-    [ngTemplateOutlet]="stepperNavTpt() || defaultNavTpt"
-    [ngTemplateOutletContext]="{ steps: steps(), currentIndex: currentIndex() }"
-  ></ng-container>
+	<ng-container
+		[ngTemplateOutlet]="stepperNavTpt() || defaultNavTpt"
+		[ngTemplateOutletContext]="{ steps: steps(), currentIndex: currentIndex() }"
+	></ng-container>
 </nav>
 <!--end::Nav-->
 
 <!--begin::Content-->
 <div
-  class="stepper__content"
-  [class.stepper__content--animated]="hasAnimationClass()"
-  [class.stepper__content--animating]="contentAnimating()"
-  [class.stepper__content--forward]="isForwardAnimation()"
-  [class.stepper__content--backward]="isBackwardAnimation()"
+	class="stepper__content"
+	[class.stepper__content--animated]="hasAnimationClass()"
+	[class.stepper__content--animating]="contentAnimating()"
+	[class.stepper__content--forward]="isForwardAnimation()"
+	[class.stepper__content--backward]="isBackwardAnimation()"
 >
-  <div
-    class="stepper__content-panel"
-    role="tabpanel"
-    [id]="panelId(currentIndex())"
-    [attr.aria-labelledby]="tabId(currentIndex())"
-    (animationend)="onContentAnimationEnd($event)"
-  >
-    <ng-container
-      [ngTemplateOutlet]="currentStep?.innerTemplate()"
-    ></ng-container>
-  </div>
+	<div
+		class="stepper__content-panel"
+		role="tabpanel"
+		[id]="panelId(currentIndex())"
+		[attr.aria-labelledby]="tabId(currentIndex())"
+		(animationend)="onContentAnimationEnd($event)"
+	>
+		<ng-container [ngTemplateOutlet]="currentStep?.innerTemplate()"></ng-container>
+	</div>
 </div>
 <!--end::Content-->
 
 <!--begin::Controls-->
 <div class="stepper__controls">
-  @if (currentIndex() > 0) {
-    <ng-content select="button[previousButton]"></ng-content>
-    @if (!previousButton()) {
-      <button
-        class="stepper__button stepper__button--back"
-        (click)="goToPrevious()"
-        [disabled]="!canNavigateTo(currentIndex() - 1)"
-        >
-        @if (isRtl()) {
-          <span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
-        } @else {
-          <span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
-        }
-        {{ backLabel() ?? ('BACK' | translate | ucfirst) }}
-      </button>
-    }
-  }
+	@if (currentIndex() > 0) {
+		<ng-content select="button[previousButton]"></ng-content>
+		@if (!previousButton()) {
+			<button
+				class="stepper__button stepper__button--back"
+				(click)="goToPrevious()"
+				[disabled]="!canNavigateTo(currentIndex() - 1)"
+			>
+				@if (isRtl()) {
+					<span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
+				} @else {
+					<span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
+				}
+				{{ backLabel() ?? ('BACK' | translate | ucfirst) }}
+			</button>
+		}
+	}
 
-  @if (currentIndex() < steps().length - 1) {
-    <ng-content select="button[nextButton]"></ng-content>
-    @if (!nextButton()) {
-      <button
-        class="stepper__button stepper__button--next"
-        (click)="goToNext()"
-        [disabled]="!canNavigateTo(currentIndex() + 1)"
-        >
-        {{ continueLabel() ?? ('CONTINUE' | translate | ucfirst) }}
-        @if (isRtl()) {
-          <span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
-        } @else {
-          <span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
-        }
-      </button>
-    }
-  }
+	@if (currentIndex() < steps().length - 1) {
+		<ng-content select="button[nextButton]"></ng-content>
+		@if (!nextButton()) {
+			<button
+				class="stepper__button stepper__button--next"
+				(click)="goToNext()"
+				[disabled]="!canNavigateTo(currentIndex() + 1)"
+			>
+				{{ continueLabel() ?? ('CONTINUE' | translate | ucfirst) }}
+				@if (isRtl()) {
+					<span class="stepper__button-icon" aria-hidden="true">&#8592;</span>
+				} @else {
+					<span class="stepper__button-icon" aria-hidden="true">&#8594;</span>
+				}
+			</button>
+		}
+	}
 
-  @if (currentIndex() === steps().length - 1) {
-    <ng-content select="button[submitButton]"></ng-content>
-    @if (!submitButton()) {
-      <button
-        class="stepper__button stepper__button--submit"
-        (click)="complete()"
-        [disabled]="!isValidStepIndex(currentIndex())"
-        >
-        {{ submitLabel() ?? ('SUBMIT' | translate | ucfirst) }}
-      </button>
-    }
-  }
+	@if (currentIndex() === steps().length - 1) {
+		<ng-content select="button[submitButton]"></ng-content>
+		@if (!submitButton()) {
+			<button
+				class="stepper__button stepper__button--submit"
+				(click)="complete()"
+				[disabled]="!isValidStepIndex(currentIndex())"
+			>
+				{{ submitLabel() ?? ('SUBMIT' | translate | ucfirst) }}
+			</button>
+		}
+	}
 </div>
 <!--end::Controls-->
 
 <!-- begin:default-nav -->
 <ng-template #defaultNavTpt let-steps="steps" let-currentIndex="currentIndex">
-  <ul
-    class="stepper__nav-list"
-    role="tablist"
-    [attr.aria-orientation]="railOrientation()"
-    [attr.aria-label]="railLabel()"
-  >
-    @for (step of steps; track $index; let i = $index) {
-      <li class="stepper__nav-item" role="presentation">
-        <ng-container
-				[ngTemplateOutlet]="
-					defaultNavTriggerTpt
-				"
-				[ngTemplateOutletContext]="{
-					title: step.title(),
-					index: i,
-					isCurrent: currentIndex === i,
-					isCompleted: i < currentIndex
-				}"
-        ></ng-container>
-      </li>
-    }
-  </ul>
+	<ul class="stepper__nav-list" role="tablist" [attr.aria-orientation]="railOrientation()" [attr.aria-label]="railLabel()">
+		@for (step of steps; track $index; let i = $index) {
+			<li class="stepper__nav-item" role="presentation">
+				<ng-container
+					[ngTemplateOutlet]="defaultNavTriggerTpt"
+					[ngTemplateOutletContext]="{
+						title: step.title(),
+						index: i,
+						isCurrent: currentIndex === i,
+						isCompleted: i < currentIndex
+					}"
+				></ng-container>
+			</li>
+		}
+	</ul>
 </ng-template>
 <!-- end:default-nav -->
 
 <!-- begin:default-nav-trigger -->
-<ng-template
-  #defaultNavTriggerTpt
-  let-title="title"
-  let-index="index"
-  let-isCurrent="isCurrent"
-  let-isCompleted="isCompleted"
-  >
-  <button
-    type="button"
-    class="stepper__nav-trigger"
-    role="tab"
-    [id]="tabId(index)"
-    [class.stepper__nav-trigger--current]="isCurrent"
-    [class.stepper__nav-trigger--completed]="isCompleted"
-    [attr.aria-selected]="isCurrent"
-    [attr.aria-current]="isCurrent ? 'step' : null"
-    [attr.aria-controls]="panelId(index)"
-    [attr.aria-disabled]="canNavigateTo(index) ? null : true"
-    [attr.tabindex]="tabIndexFor(index)"
-    [disabled]="!canNavigateTo(index)"
-    (click)="goTo(index)"
-    (keydown)="onRailKeydown($event, index)"
-    >
-    @if (title) {
-      <span class="stepper__nav-title" [hubOverflowTooltip]="title">{{ title }}</span>
-    } @else {
-      <span class="stepper__nav-title" [hubOverflowTooltip]="'Step ' + (index + 1)">Step {{ index + 1 }}</span>
-    }
-  </button>
+<ng-template #defaultNavTriggerTpt let-title="title" let-index="index" let-isCurrent="isCurrent" let-isCompleted="isCompleted">
+	<button
+		type="button"
+		class="stepper__nav-trigger"
+		role="tab"
+		[id]="tabId(index)"
+		[class.stepper__nav-trigger--current]="isCurrent"
+		[class.stepper__nav-trigger--completed]="isCompleted"
+		[attr.aria-selected]="isCurrent"
+		[attr.aria-current]="isCurrent ? 'step' : null"
+		[attr.aria-controls]="panelId(index)"
+		[attr.aria-disabled]="canNavigateTo(index) ? null : true"
+		[attr.tabindex]="tabIndexFor(index)"
+		[disabled]="!canNavigateTo(index)"
+		(click)="goTo(index)"
+		(keydown)="onRailKeydown($event, index)"
+	>
+		@if (title) {
+			<span class="stepper__nav-title" [hubOverflowTooltip]="title">{{ title }}</span>
+		} @else {
+			<span class="stepper__nav-title" [hubOverflowTooltip]="'Step ' + (index + 1)">Step {{ index + 1 }}</span>
+		}
+	</button>
 </ng-template>
 <!-- end:default-nav-trigger -->

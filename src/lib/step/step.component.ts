@@ -1,13 +1,4 @@
-import {
-	ChangeDetectionStrategy,
-	Component,
-	inject,
-	OnInit,
-	input,
-	signal,
-	TemplateRef,
-	viewChild
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { StepperComponent } from '../stepper/stepper.component';
 
 /** Default animation duration (ms) used by optional step transitions. */

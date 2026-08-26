@@ -285,7 +285,9 @@
 	animation-name: stepper-slide-in-forward;
 }
 
-:host.stepper--animated:not(.stepper--anim-fade) .stepper__content--animating.stepper__content--backward .stepper__content-panel,
+:host.stepper--animated:not(.stepper--anim-fade)
+	.stepper__content--animating.stepper__content--backward
+	.stepper__content-panel,
 :host.stepper--animated.stepper--anim-slide .stepper__content--animating.stepper__content--backward .stepper__content-panel {
 	animation-name: stepper-slide-in-backward;
 }

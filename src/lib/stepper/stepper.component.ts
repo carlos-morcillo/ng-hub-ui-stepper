@@ -16,7 +16,13 @@ import {
 	contentChildren
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { HUB_TRANSLATION_PREFIX, HubOverflowTooltipDirective, resolveHubAccent, TranslatePipe, UcfirstPipe } from 'ng-hub-ui-utils';
+import {
+	HUB_TRANSLATION_PREFIX,
+	HubOverflowTooltipDirective,
+	resolveHubAccent,
+	TranslatePipe,
+	UcfirstPipe
+} from 'ng-hub-ui-utils';
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
@@ -390,7 +396,9 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 			if (index === previousIndex) {
 				return;
 			}
-			this.animationDirection.set(index > previousIndex ? StepperAnimationDirection.Forward : StepperAnimationDirection.Backward);
+			this.animationDirection.set(
+				index > previousIndex ? StepperAnimationDirection.Forward : StepperAnimationDirection.Backward
+			);
 			this.currentIndex.set(index);
 			this.focusedIndex.set(null);
 			this.playContentTransition();
