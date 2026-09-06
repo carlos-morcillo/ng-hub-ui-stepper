@@ -5,6 +5,63 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.8.2] - 2026-09-06
+
+### Added
+
+- **Unit specs for the seven building blocks that had none** — `StepComponent`, the `nextButton` /
+  `previousButton` / `submitButton` directives, `StepperNavDirective`, `StepTriggerDirective` and
+  `StepperThemeService`. Coverage stopped at `StepperComponent`, so every regression in the pieces
+  around it reached a release: an input signal compared instead of read left the projected controls
+  permanently disabled, and a selector written with a descendant combinator stopped matching
+  altogether. Both are the kind of break the suite now catches on its own, instead of waiting for
+  someone to click through the documentation page.
+
+- **`FUNCTIONALITIES.md`** — the library shipped without the coverage matrix its siblings all carry, so
+  there was no single place saying which of its features an interactive example actually demonstrates.
+- **A migration note for the 22.4.0 removal of the `ng80-stepper` / `ng80-step` selectors.** The CHANGELOG
+  flagged it BREAKING, but `BREAKING_CHANGES.md` jumped straight from 22.5.0 to 22.1.0. Since the major
+  tracks the Angular major and can never signal a break, that file is the only warning a consumer gets —
+  and an unmatched element does not fail loudly, it just stops rendering, which is the worst way to find out.
+
+### Deprecated
+
+- **`StepperModule` and `StepperModule.forRoot()`, marked for removal in 23.0.0.** Neither carried a
+  `@deprecated` tag, so an editor gave no hint and neither did the build. The module only re-exports
+  the seven standalone building blocks, and importing them directly is the whole migration.
+  `forRoot()` needs a word more: it is the only thing that registers the bundled `en` / `es` / `ca` /
+  `eu` / `gl` / `ast` / `an` / `de` / `zh` / `ar` dictionaries, and those dictionaries are not part of
+  the public API. A standalone application names the three built-in controls through the
+  `backLabel` / `continueLabel` / `submitLabel` inputs of `<hub-stepper>`, or registers its own
+  dictionary under `HUBUI.STEPPER` with `provideHubTranslation()` from `ng-hub-ui-utils` — which is
+  also what supplies the `HubTranslationService` the stepper's `translate` pipe injects. See
+  `BREAKING_CHANGES.md`.
+
+### Removed
+
+- **The `console.warn` for a step declared without a title and the `console.error` for an out-of-range `goTo()`.** Neither was guarded, so both shipped inside the published bundle and wrote into the console of every consuming application — the first once per untitled step, on every render pass that created one. A library has no business logging into its host's console. Navigation is unchanged: `goTo()` still ignores an index outside the steps collection.
+
+### Fixed
+
+- **Projected `nextButton` and `previousButton` controls no longer arrive permanently disabled.** Both directives compared the adjacent step's `disabled` input signal itself instead of reading its value, so the expression was a function — always truthy — whenever an adjacent step existed. Every custom navigation button a consumer projected was therefore inert and only the built-in controls worked, which is the opposite of what the directives exist for.
+- **`StepComponent.isAccessible()` now answers for the step it is asked about.** It negated the `disabled` input signal rather than its value, so it returned `false` for every step, enabled or not, contradicting the contract its own documentation states.
+- **`variant="secondary"`, `"neutral"`, `"light"` and `"dark"` are resolved by the stylesheet like the other five built-ins.** The component's built-in list had stayed at the five variants that predate 22.2.0, so the four added then took the custom-accent branch and were written as an inline style, which outranks both a consumer rule and the `hub-stepper-theme()` mixin. The rendered colour was already correct; what changes is that overriding the accent now behaves identically for all nine documented variants.
+
+- **The documentation no longer describes an API the library does not have.** The page and both READMEs
+  promised per-step `FormGroup` validation, a completed-steps signal, an orientation input and
+  `stepperNavTpt` as the consumer entry point — none of which exist — and gave `'Back'` / `'Continue'` /
+  `'Submit'` as the defaults of three inputs that default to `null`. What the library does have and nobody
+  had written down is now written down: `variant`, `truncateTitles`, the `stepperNav` rail template and its
+  context, the `stepper--animated` / `--anim-slide` / `--anim-fade` host classes, `StepperThemeService`,
+  `StepperModule.forRoot()` and the namespaced `HUBUI.STEPPER.*` translation keys.
+- Outputs are documented as `OutputEmitterRef`, which is what `output()` returns; the tables still called
+  them `EventEmitter`.
+- The version banner in both READMEs announced 21.2.1 against a manifest publishing 22.8.2.
+- The page's "Recent changes" block skipped eight releases between 22.5.1 and 21.2.0, among them the two
+  that introduced `variant` and `truncateTitles`.
+- The `stepper-modal` example was registered but unreachable: it appeared in no navigation entry, no
+  preview map and no feature group.
+
 ## [22.8.1] - 2026-09-01
 
 ### Changed

@@ -21,6 +21,6 @@ export class NextButtonDirective {
 	readonly disabled = computed(() => {
 		const nextIndex = this.stepper.currentIndex() + 1;
 		const nextStep = this.stepper.steps()?.[nextIndex];
-		return !nextStep || nextStep.disabled;
+		return !nextStep || nextStep.disabled();
 	});
 }

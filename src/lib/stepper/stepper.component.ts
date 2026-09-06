@@ -35,7 +35,17 @@ import { StepperAnimationDirection, StepperLayout, StepperOptions } from './step
  * It coordinates navigation, state transitions and projected templates for steps and controls.
  */
 /** Variants with exact design-system token coverage via the SCSS `@each` loop. */
-const STEPPER_BUILT_IN_VARIANTS = new Set<string>(['primary', 'success', 'danger', 'warning', 'info']);
+const STEPPER_BUILT_IN_VARIANTS = new Set<string>([
+	'primary',
+	'secondary',
+	'success',
+	'danger',
+	'warning',
+	'info',
+	'neutral',
+	'light',
+	'dark'
+]);
 
 /** Monotonic counter used to build unique, stable per-instance ARIA ids. */
 let nextStepperInstanceId = 0;
@@ -85,15 +95,16 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	protected readonly focusedIndex = signal<number | null>(null);
 
 	/**
-	 * Semantic accent of the stepper: `'primary'` · `'success'` · `'danger'` ·
-	 * `'warning'` · `'info'`, or any custom string (read as `--hub-sys-color-<variant>`).
+	 * Semantic accent of the stepper: `'primary'` · `'secondary'` · `'success'` ·
+	 * `'danger'` · `'warning'` · `'info'` · `'neutral'` · `'light'` · `'dark'`, or
+	 * any custom string (read as `--hub-sys-color-<variant>`).
 	 * Re-bases `--hub-stepper-accent`, which drives the active step pill and the
 	 * next / submit controls. Defaults to primary.
 	 */
 	readonly variant = input<string>();
 
 	/**
-	 * Inline accent for custom (non-built-in) variants — the built-in five are
+	 * Inline accent for custom (non-built-in) variants — the built-in nine are
 	 * resolved by the SCSS `@each` loop, so this returns `null` for them.
 	 *
 	 * Any custom value is accepted: a bareword (semantic name / registered accent /
@@ -408,8 +419,6 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 			} else if (index < previousIndex) {
 				this.previousStep.emit(index);
 			}
-		} else {
-			console.error(`Invalid step index: ${index}`);
 		}
 	}
 

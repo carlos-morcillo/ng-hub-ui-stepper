@@ -47,16 +47,29 @@ const STEPPER_STANDALONE = [
 	SubmitButtonDirective
 ] as const;
 
+/**
+ * Backward-compatibility module that re-exports all stepper standalone building blocks.
+ *
+ * @deprecated Import the building blocks directly — `StepperComponent`, `StepComponent`,
+ * `StepTriggerDirective`, `StepperNavDirective`, `PreviousButtonDirective`,
+ * `NextButtonDirective` and `SubmitButtonDirective` are all standalone. Scheduled for
+ * removal in **23.0.0**, `forRoot()` included: see its own note for what replaces it.
+ */
 @NgModule({
 	imports: [...STEPPER_STANDALONE],
 	exports: [...STEPPER_STANDALONE]
 })
-/**
- * Angular module that re-exports all stepper standalone building blocks for convenience.
- */
 export class StepperModule {
 	/**
 	 * Registers built-in dictionaries and resolves the active translation language.
+	 *
+	 * @deprecated Goes with the module in **23.0.0**. The bundled dictionaries are not part
+	 * of the public API, so a standalone application names the three built-in controls
+	 * either through the `backLabel` / `continueLabel` / `submitLabel` inputs of
+	 * `<hub-stepper>`, or by registering its own dictionary with `provideHubTranslation()`
+	 * from `ng-hub-ui-utils` under the `HUBUI.STEPPER` namespace. `provideHubTranslation()`
+	 * is also what supplies `HubTranslationService`, which the stepper's `translate` pipe
+	 * requires; without it the pipe has nothing to inject.
 	 *
 	 * @param config Optional language and fallback language override.
 	 * @returns Module providers with translation configuration.

@@ -8,7 +8,7 @@
 A flexible, customizable, and accessible stepper component for Angular 21+. Perfect for multi-step forms, wizards, and guided user experiences with a focus on developer experience and modern standards.
 
 > [!IMPORTANT]
-> This version (21.2.1) is built for **Angular 21** and uses the new **Signals** architecture.
+> Version `22.8.2` targets **Angular 21** and uses the **Signals** architecture shared across `ng-hub-ui`.
 
 ## Documentation and Live Examples
 
@@ -52,11 +52,15 @@ This library is part of the **ng-hub-ui** ecosystem:
 	- [Linear Stepper](#linear-stepper)
 	- [Custom Navigation](#custom-navigation)
 	- [Custom Buttons](#custom-buttons)
+	- [Step transitions](#step-transitions)
 - [API Reference](#api-reference)
-	- [StepperComponent](#steppercomponent)
-	- [StepComponent](#stepcomponent)
+	- [StepperComponent](#steppercomponent-hub-stepper)
+	- [StepComponent](#stepcomponent-hub-step)
 	- [Directives](#directives)
+	- [Host classes](#host-classes)
+	- [Services](#services)
 	- [Interfaces](#interfaces)
+- [Internationalization](#internationalization)
 - [Styling](#styling)
 - [Contributing](#contributing)
 - [License](#license)
@@ -64,12 +68,17 @@ This library is part of the **ng-hub-ui** ecosystem:
 ## Features
 
 - 🚀 **Angular 21+ Built-in**: Uses Signals and new control flow syntax.
-- 🎨 **Highly Customizable**: Easy to theme via CSS variables and custom templates.
+- 🎨 **Highly Customizable**: Easy to theme via CSS variables, the `hub-stepper-theme()` Sass mixin and custom templates.
 - ♿ **Accessible**: WAI-ARIA tablist rail with full keyboard navigation.
 - 🔢 **Multi-layout**: Supports Vertical, Sidebar, and RTL modes.
-- 🔄 **Smooth Transitions**: Built-in CSS animations.
+- 🔄 **Smooth Transitions**: Opt-in CSS animations, enabled with the `stepper--animated` host class (see [Step transitions](#step-transitions)). No `@angular/animations` dependency.
 - 🧩 **Flexible Controls**: Use default buttons or project your own.
 - ✂️ **Opt-in title truncation + tooltip**: set `truncateTitles` to clip long nav titles (bounded by `--hub-stepper-nav-title-max-width`) and reveal the full text on hover — hub-ui tooltip by default, swappable with `provideHubTooltip`. Requires `ng-hub-ui-utils >= 22.6.0` + `@use 'ng-hub-ui-utils/styles/tooltip';`.
+
+> ℹ️ **What the stepper does not do**: it never inspects your forms. `canNavigateTo()` answers on the
+> step's `disabled` input and nothing else, so an "advance only when this step is valid" rule lives in
+> your component — bind `[disabled]` on the following step to whatever your form says (see
+> [Linear Stepper](#linear-stepper)).
 
 > ♿ **Accessibility model**: the step rail is a WAI-ARIA `tablist` (each trigger a `tab`, each step content a `tabpanel`) with a roving tabindex, so it is a single Tab stop. Arrow keys move focus between enabled steps (skipping disabled ones, wrapping), `Home`/`End` jump to the first/last enabled step, and `Enter`/`Space` activates the focused step under the same rules as clicking it. The rail's accessible name comes from the `railLabel` input (default `'Steps'`).
 
@@ -81,18 +90,26 @@ npm install ng-hub-ui-stepper
 
 ## Usage (Quick Start)
 
-Import the `StepperModule` in your module/component:
+Import the standalone building blocks your template uses:
 
 ```typescript
-import { StepperModule } from 'ng-hub-ui-stepper';
+import { StepComponent, StepperComponent } from 'ng-hub-ui-stepper';
 
 @Component({
   standalone: true,
-  imports: [StepperModule],
+  imports: [StepperComponent, StepComponent],
   // ...
 })
 export class YourComponent { }
 ```
+
+The rest of the surface — `StepTriggerDirective`, `StepperNavDirective`, `PreviousButtonDirective`,
+`NextButtonDirective` and `SubmitButtonDirective` — is imported the same way, one by one, as each
+template needs it.
+
+> **`StepperModule` is deprecated and will be removed in 23.0.0.** It only re-exports the seven
+> building blocks above, so importing them directly is the whole migration. `StepperModule.forRoot()`
+> goes with it — see [Internationalization](#internationalization).
 
 In your template:
 
@@ -135,28 +152,40 @@ Control navigation by enabling/disabling steps programmatically.
 
 ### Custom Navigation
 
-Provide your own navigation template using the `stepperNavTpt` property.
+Mark an `ng-template` with the `hubStepperNav` (or `stepperNav`) directive and it replaces the whole
+built-in rail. The context gives you `steps` — the projected `StepComponent` instances, so `title` and
+`disabled` are signals — and `currentIndex`. A template reference on the stepper gets you `goTo()`.
 
 ```html
-<hub-stepper>
-  <nav *stepperNav="let steps = steps; let currentIndex = currentIndex" class="my-custom-nav">
-     @for (step of steps; track step; let i = $index) {
-       <button
-         [class.active]="i === currentIndex"
-         (click)="goTo(i)">
-         {{ step.title() }}
-       </button>
-     }
-  </nav>
+<hub-stepper #stepper>
+  <ng-template hubStepperNav let-steps="steps" let-currentIndex="currentIndex">
+    <ol class="my-custom-nav">
+      @for (step of steps; track step; let i = $index) {
+        <li>
+          <button
+            type="button"
+            [class.active]="i === currentIndex"
+            [disabled]="!stepper.canNavigateTo(i)"
+            (click)="stepper.goTo(i)">
+            {{ step.title() || 'Step ' + (i + 1) }}
+          </button>
+        </li>
+      }
+    </ol>
+  </ng-template>
 
   <hub-step title="A">...</hub-step>
   <hub-step title="B">...</hub-step>
 </hub-stepper>
 ```
 
+> Replacing the rail also replaces its accessibility: the WAI-ARIA tablist, the roving tabindex and the
+> arrow-key handling described above belong to the built-in rail. A custom template owns its own semantics.
+
 ### Custom Buttons
 
-Project your own buttons to override the default footer.
+Project your own buttons to override the default footer. Each directive wires the click and keeps the
+button disabled while the move is unavailable.
 
 ```html
 <hub-stepper>
@@ -168,38 +197,101 @@ Project your own buttons to override the default footer.
 </hub-stepper>
 ```
 
+### Step transitions
+
+Transitions are plain CSS and opt-in: add `stepper--animated` to the host, then pick the flavour with
+`stepper--anim-slide` (the default when neither is set) or `stepper--anim-fade`. Duration comes from
+`--hub-stepper-animation-duration`.
+
+```html
+<hub-stepper
+  class="stepper--animated stepper--anim-fade"
+  [style.--hub-stepper-animation-duration.ms]="240"
+>
+  <hub-step title="Profile">...</hub-step>
+  <hub-step title="Summary">...</hub-step>
+</hub-stepper>
+```
+
 ## API Reference
 
 ### StepperComponent (`hub-stepper`)
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `backLabel` | `string` | `'Back'` | Label for the back button. |
-| `continueLabel` | `string` | `'Continue'` | Label for the continue button. |
-| `submitLabel` | `string` | `'Submit'` | Label for the submit button. |
+| `variant` | `string` | `undefined` (renders as primary) | Semantic accent for the active step pill and the next / submit controls. Built-in values: `primary`, `secondary`, `success`, `danger`, `warning`, `info`, `neutral`, `light`, `dark`. Any other string is also accepted and resolves through `--hub-sys-color-<variant>`. |
+| `backLabel` | `string \| null` | `null` | Overrides the back button label. While `null`, the translated `BACK` label is used. |
+| `continueLabel` | `string \| null` | `null` | Overrides the continue button label. While `null`, the translated `CONTINUE` label is used. |
+| `submitLabel` | `string \| null` | `null` | Overrides the submit button label. While `null`, the translated `SUBMIT` label is used. |
+| `truncateTitles` | `boolean` | `false` | Clips each rail title to `--hub-stepper-nav-title-max-width` (default `12rem`) and reveals the full text as a tooltip when it overflows. |
 | `railLabel` | `string` | `'Steps'` | Accessible name of the step rail tablist. |
-| `variant` | `string` | `'primary'` | Semantic accent for the active step pill and the next / submit controls. Built-in values: `primary`, `success`, `danger`, `warning`, `info`. Any other string is also accepted and resolves through `--hub-sys-color-<variant>`. |
 | `options` | `StepperOptions` | `{}` | Visual and layout configuration. |
 
 | Output | Type | Description |
 |---|---|---|
-| `completed` | `EventEmitter<void>` | Emitted when the last step is completed. |
-| `previousStep` | `EventEmitter<number>` | Emitted when moving back. Passes the new index. |
-| `nextStep` | `EventEmitter<number>` | Emitted when moving forward. Passes the new index. |
+| `completed` | `OutputEmitterRef<void>` | Emitted when the last step is completed. |
+| `previousStep` | `OutputEmitterRef<number>` | Emitted when moving back. Passes the new index. |
+| `nextStep` | `OutputEmitterRef<number>` | Emitted when moving forward. Passes the new index. |
+
+Public members you can reach through a template reference (`<hub-stepper #stepper>`):
+
+| Member | Signature | Description |
+|---|---|---|
+| `currentIndex` | `WritableSignal<number>` | Index of the active step. |
+| `steps` | `Signal<readonly StepComponent[]>` | The projected steps, in order. |
+| `currentStep` | `StepComponent \| null` | The active step instance. |
+| `goTo` | `(index: number) => void` | Activates a step. Only bounds are checked — it does not consult `canNavigateTo`, so a programmatic jump can land on a `disabled` step. |
+| `goToPrevious` / `goToNext` | `() => void` | Moves one step back / forward. |
+| `canNavigateTo` | `(index: number) => boolean` | `true` when the index exists and its step is not `disabled`. |
+| `complete` | `() => void` | Emits `completed`. |
 
 ### StepComponent (`hub-step`)
 
 | Input | Type | Default | Description |
 |---|---|---|---|
-| `title` | `string` | `optional` | Text displayed in navigation. |
-| `disabled` | `boolean` | `false` | Prevents navigation to this step. |
+| `title` | `string \| undefined` | `undefined` | Text displayed in the rail. Falls back to `Step N` when omitted. |
+| `disabled` | `boolean` | `false` | Prevents navigation to this step through the rail and the built-in controls. |
+
+`index` is **not** an input: the parent stepper assigns it. Reading it (`step.index()`) is fine; binding it is not.
 
 ### Directives
 
-- `nextButton`: Apply to any button to use it as the "next" control.
-- `previousButton`: Apply to any button to use it as the "back" control.
-- `submitButton`: Apply to any button to use it as the "submit" control.
-- `stepperNav`: Mark a template to be used as custom navigation.
+| Directive | Selectors | Applies to | Purpose |
+|---|---|---|---|
+| `NextButtonDirective` | `button[nextButton]`, `button[continueButton]` | `<button>` | Calls `goToNext()` and disables the button when there is no enabled next step. |
+| `PreviousButtonDirective` | `button[previousButton]`, `button[backButton]` | `<button>` | Calls `goToPrevious()` and disables the button when there is no enabled previous step. |
+| `SubmitButtonDirective` | `button[submitButton]` | `<button>` | Calls `complete()` and disables the button while the current step is `disabled`. |
+| `StepperNavDirective` | `[hubStepperNav]`, `[stepperNav]` | `<ng-template>` | Replaces the built-in rail. Context: `steps`, `currentIndex`. |
+| `StepTriggerDirective` | `[hubStepTrigger]`, `[stepTrigger]` | `<ng-template>` | Captures a per-step trigger template. **Exported but not yet rendered** — the stepper draws its own triggers; this is groundwork, and applying it changes nothing today. |
+
+### Host classes
+
+Set these on `<hub-stepper>` itself; they are read by the stylesheet, not by inputs.
+
+| Class | Effect |
+|---|---|
+| `stepper--animated` | Enables the CSS transition between step panels. Without it, panels swap instantly. |
+| `stepper--anim-slide` | Slide transition (also the default when only `stepper--animated` is set). |
+| `stepper--anim-fade` | Fade transition instead of the slide. |
+
+### Services
+
+#### `StepperThemeService`
+
+Provided in root. Writes `--hub-stepper-*` custom properties on `documentElement`, for themes decided at
+runtime (a tenant colour arriving from an API, say). Keys are passed **without** the `--hub-stepper-`
+prefix, which the service adds:
+
+```typescript
+inject(StepperThemeService).setTheme({
+  accent: '#7c3aed',
+  'nav-link-active-color': '#ffffff',
+  gap: '1.5rem'
+});
+```
+
+For a theme known at build time, prefer the [`hub-stepper-theme()` mixin](#sass-mixin): it scopes to a
+selector instead of the document root.
 
 ### Interfaces
 
@@ -211,14 +303,49 @@ interface StepperOptions {
 }
 ```
 
-## Internationalization
+#### `StepperConfig`
 
-The built-in back, continue and submit labels use `TranslatePipe` from `ng-hub-ui-utils`. Configure `provideHubTranslationAdapter()` once in `app.config.ts`; its reactive dictionary updates the rendered navigation automatically.
+Accepted by the deprecated `StepperModule.forRoot()`, which registers the bundled dictionaries:
 
 ```typescript
-// The adapter source supplies the active dictionary to HubTranslationService.
-// Expected keys: BACK, CONTINUE and SUBMIT.
+interface StepperConfig {
+  language?: string;        // default 'es'
+  fallbackLanguage?: string; // default 'en'
+}
 ```
+
+## Internationalization
+
+The built-in back, continue and submit labels go through `TranslatePipe` from `ng-hub-ui-utils`. There are
+two ways to feed them, and they can be combined.
+
+**The bundled dictionaries — deprecated.** `StepperModule.forRoot()` registers translations for `en`,
+`es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh` and `ar`:
+
+```typescript
+imports: [StepperModule.forRoot({ language: 'en', fallbackLanguage: 'en' })];
+```
+
+It is the only way to reach those dictionaries, and it is **removed in 23.0.0** along with the module.
+The dictionaries themselves are not exported, so they cannot be handed to a provider function: use the
+application dictionary below, or name the three controls through the `backLabel` / `continueLabel` /
+`submitLabel` inputs. Note that `forRoot()` is also what provides `HubTranslationService`, which
+`TranslatePipe` injects — an application that drops it must provide the service another way, which
+both `provideHubTranslation()` and `provideHubTranslationAdapter()` do.
+
+**Your application dictionary.** Configure `provideHubTranslationAdapter()` once in `app.config.ts`; its
+reactive dictionary updates the rendered navigation automatically. The component provides
+`HUB_TRANSLATION_PREFIX` as `HUBUI.STEPPER`, so the namespaced keys are looked up first and the bare keys
+remain as the fallback:
+
+```typescript
+// Preferred — namespaced, so the stepper reserves no generic top-level keys:
+//   HUBUI.STEPPER.BACK, HUBUI.STEPPER.CONTINUE, HUBUI.STEPPER.SUBMIT
+// Still honoured for existing flat dictionaries:
+//   BACK, CONTINUE, SUBMIT
+```
+
+Per instance, `backLabel` / `continueLabel` / `submitLabel` win over both.
 
 ## Styling
 
@@ -234,7 +361,7 @@ Customize the component using CSS variables. For a complete list of available to
 
 ### Semantic accent
 
-The `--hub-stepper-accent` token drives the active step pill and the next / submit controls. It defaults to `var(--hub-sys-color-primary)`. The easiest way to set it is the `variant` input (see [API Reference](#steppercomponent)), but you can also override the token directly:
+The `--hub-stepper-accent` token drives the active step pill and the next / submit controls. It defaults to `var(--hub-sys-color-primary)`. The easiest way to set it is the `variant` input (see [API Reference](#steppercomponent-hub-stepper)), but you can also override the token directly:
 
 ```css
 .my-stepper {
@@ -247,7 +374,7 @@ The `--hub-stepper-accent` token drives the active step pill and the next / subm
 For full theming in a single call, the package ships a `hub-stepper-theme()` Sass mixin. Every parameter is optional and defaults to `null`, so only the ones you pass are emitted as `--hub-stepper-*` overrides:
 
 ```scss
-@use 'ng-hub-ui-stepper/styles/mixins/stepper-theme' as *;
+@use 'ng-hub-ui-stepper/styles' as *;
 
 .checkout-stepper {
   @include hub-stepper-theme(

@@ -3,6 +3,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHubTranslation } from 'ng-hub-ui-utils';
+import { NextButtonDirective } from '../next-button.directive';
+import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
 import { StepperLayout } from './stepper-options';
 import { StepperComponent } from './stepper.component';
@@ -19,6 +21,24 @@ import { StepperComponent } from './stepper.component';
 	`
 })
 class TestHostComponent {
+	readonly stepper = viewChild.required<StepperComponent>('stepper');
+	secondStepDisabled = false;
+}
+
+@Component({
+	standalone: true,
+	imports: [StepperComponent, StepComponent, NextButtonDirective, PreviousButtonDirective],
+	template: `
+		<hub-stepper #stepper>
+			<hub-step title="Step 1">Content 1</hub-step>
+			<hub-step title="Step 2" [disabled]="secondStepDisabled">Content 2</hub-step>
+			<hub-step title="Step 3">Content 3</hub-step>
+			<button previousButton>Back</button>
+			<button nextButton>Next</button>
+		</hub-stepper>
+	`
+})
+class ProjectedControlsHostComponent {
 	readonly stepper = viewChild.required<StepperComponent>('stepper');
 	secondStepDisabled = false;
 }
@@ -157,12 +177,23 @@ describe('StepperComponent', () => {
 
 	it('resolves a custom semantic variant to the ds token with a raw fallback', () => {
 		const accentFixture = TestBed.createComponent(StepperComponent);
-		accentFixture.componentRef.setInput('variant', 'secondary');
+		accentFixture.componentRef.setInput('variant', 'brand');
 		accentFixture.detectChanges();
 
 		expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe(
-			'var(--hub-sys-color-secondary, secondary)'
+			'var(--hub-sys-color-brand, brand)'
 		);
+	});
+
+	it('leaves every built-in variant to the stylesheet, writing no inline accent', () => {
+		for (const variant of ['primary', 'secondary', 'success', 'danger', 'warning', 'info', 'neutral', 'light', 'dark']) {
+			const accentFixture = TestBed.createComponent(StepperComponent);
+			accentFixture.componentRef.setInput('variant', variant);
+			accentFixture.detectChanges();
+
+			expect(accentFixture.nativeElement.getAttribute('data-variant')).toBe(variant);
+			expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe('');
+		}
 	});
 
 	it('passes a literal colour variant through unchanged', () => {
@@ -171,6 +202,64 @@ describe('StepperComponent', () => {
 		accentFixture.detectChanges();
 
 		expect(accentFixture.nativeElement.style.getPropertyValue('--hub-stepper-accent')).toBe('#ff0000');
+	});
+
+	describe('step accessibility contract', () => {
+		it('reports an enabled step as accessible and a disabled one as not', () => {
+			const stepFixture = TestBed.createComponent(TestHostComponent);
+			stepFixture.componentInstance.secondStepDisabled = true;
+			stepFixture.detectChanges();
+			const steps = stepFixture.componentInstance.stepper().steps();
+
+			expect(steps[0].isAccessible()).toBe(true);
+			expect(steps[1].isAccessible()).toBe(false);
+		});
+	});
+
+	describe('projected navigation buttons', () => {
+		let projectedFixture: ComponentFixture<ProjectedControlsHostComponent>;
+		let projectedStepper: StepperComponent;
+
+		beforeEach(() => {
+			projectedFixture = TestBed.createComponent(ProjectedControlsHostComponent);
+			projectedFixture.detectChanges();
+			projectedStepper = projectedFixture.componentInstance.stepper();
+		});
+
+		it('keeps a projected nextButton enabled and advances the stepper on click', () => {
+			const nextButton: HTMLButtonElement = projectedFixture.nativeElement.querySelector('.stepper__button--next');
+
+			expect(nextButton.disabled).toBe(false);
+
+			nextButton.click();
+			projectedFixture.detectChanges();
+
+			expect(projectedStepper.currentIndex()).toBe(1);
+		});
+
+		it('keeps a projected previousButton enabled and steps back on click', () => {
+			projectedStepper.goToNext();
+			projectedFixture.detectChanges();
+
+			const previousButton: HTMLButtonElement = projectedFixture.nativeElement.querySelector('.stepper__button--back');
+
+			expect(previousButton.disabled).toBe(false);
+
+			previousButton.click();
+			projectedFixture.detectChanges();
+
+			expect(projectedStepper.currentIndex()).toBe(0);
+		});
+
+		it('disables a projected nextButton when the next step is disabled', () => {
+			const disabledFixture = TestBed.createComponent(ProjectedControlsHostComponent);
+			disabledFixture.componentInstance.secondStepDisabled = true;
+			disabledFixture.detectChanges();
+
+			const nextButton: HTMLButtonElement = disabledFixture.nativeElement.querySelector('.stepper__button--next');
+
+			expect(nextButton.disabled).toBe(true);
+		});
 	});
 
 	describe('WAI-ARIA tablist semantics', () => {

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, input, signal, TemplateRef, viewChild } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, signal, TemplateRef, viewChild } from '@angular/core';
 import { StepperComponent } from '../stepper/stepper.component';
 
 /** Default animation duration (ms) used by optional step transitions. */
@@ -14,7 +14,7 @@ const ANIMATION_DURATION = 256;
 	styleUrls: ['./step.component.scss'],
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class StepComponent implements OnInit {
+export class StepComponent {
 	/** Parent stepper instance injected from the host context. */
 	stepper = inject(StepperComponent);
 
@@ -38,19 +38,12 @@ export class StepComponent implements OnInit {
 		return '*';
 	}
 
-	/** Runs initial validation checks for component inputs. */
-	ngOnInit(): void {
-		if (!this.title()) {
-			console.warn('StepComponent: title is recommended for accessibility');
-		}
-	}
-
 	/**
 	 * Returns whether the step can be navigated to.
 	 *
 	 * @returns `true` when the step is enabled.
 	 */
 	isAccessible(): boolean {
-		return !this.disabled;
+		return !this.disabled();
 	}
 }
