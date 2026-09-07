@@ -2,7 +2,7 @@
 
 This table details the functionalities of the `ng-hub-ui-stepper` library and indicates which ones are covered by interactive examples.
 
-The public surface is two components, `hub-stepper` and `hub-step`, five directives, a runtime theming service, the deprecated `StepperModule` convenience wrapper and the `StepperOptions` / `StepperConfig` / `StepperLayout` / `StepperAnimationDirection` types.
+The public surface is two components, `hub-stepper` and `hub-step`, five directives, a runtime theming service, the `provideHubStepper()` provider function with the `STEPPER_DICTIONARIES` record it registers, the deprecated `StepperModule` convenience wrapper and the `StepperOptions` / `StepperConfig` / `StepperLayout` / `StepperAnimationDirection` types.
 
 ## Component (`hub-stepper`)
 
@@ -74,6 +74,8 @@ The public surface is two components, `hub-stepper` and `hub-step`, five directi
 | Category | Functionality | Example Covered |
 | :--- | :--- | :---: |
 | **Bundled dictionaries** | `en`, `es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh`, `ar` | ✅ |
+| | Registered through `provideHubStepper(StepperConfig)` | ❌ |
+| | `STEPPER_DICTIONARIES` exported, to register some or merge them into your own | ✅ |
 | | Registered through `StepperModule.forRoot(StepperConfig)` — deprecated, removed in 23.0.0 | ❌ |
 | | `language` / `fallbackLanguage` config | ❌ |
 | **Application dictionary** | Namespaced `HUBUI.STEPPER.*` keys resolved first | ✅ |
@@ -99,6 +101,11 @@ The public surface is two components, `hub-stepper` and `hub-step`, five directi
 | **Sass** | `hub-stepper-theme()` mixin, from `ng-hub-ui-stepper/styles` | ✅ |
 | **Runtime** | `StepperThemeService.setTheme()` | ✅ |
 | **Structure** | BEM classes (`stepper__nav`, `__nav-trigger`, `__content`, `__controls`) | ❌ |
+
+> `provideHubStepper()` returns `EnvironmentProviders`, which only a bootstrap or a route can
+> declare — a component cannot. The i18n example therefore names it in its code tab and switches
+> languages through a component-scoped `HubTranslationService` instead, which is also what keeps the
+> demo from rewriting the dictionary of the whole documentation page.
 
 ## Legend
 

@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.9.0] - 2026-09-07
+
+### Added
+
+- **`provideHubStepper(config?: StepperConfig)` — the standalone entry point the rest of the family
+  already has** (`provideHubPaginableActions`, `provideToast`, `provideHubSkeletonPresets`). Until now
+  `StepperModule.forRoot()` was the only thing that registered the bundled `en` / `es` / `ca` / `eu` /
+  `gl` / `ast` / `an` / `de` / `zh` / `ar` dictionaries and the `HubTranslationService` the built-in
+  Back / Continue / Submit controls resolve their text through — and the module is removed in 23.0.0.
+  So the announced migration cost a consumer either the ten languages, rewritten by hand, or a
+  `NullInjectorError` at first render. The new function registers exactly the same providers without a
+  module, and `forRoot()` now delegates to it, so the two entry points cannot drift apart.
+
+- **`STEPPER_DICTIONARIES`, the ten bundled dictionaries exported as a plain record.** They were
+  internal, which is why the migration note could not hand them over. An application that keeps a
+  single translation configuration can now register only the languages it ships, or merge the stepper
+  labels into a dictionary of its own, instead of retyping thirty strings. The keys stay flat — `BACK`,
+  `CONTINUE`, `SUBMIT` — because that is what the component resolves once its `HUBUI.STEPPER` namespace
+  misses; nesting them would silently stop matching.
+
+### Changed
+
+- **The 23.0.0 migration note for `StepperModule.forRoot()` names `provideHubStepper()`** instead of
+  sending the reader off to rewrite ten dictionaries. Nothing changes at runtime; what changes is that
+  the removal announced in 22.8.2 now has a replacement to point at.
+
 ## [22.8.2] - 2026-09-06
 
 ### Added

@@ -4,6 +4,7 @@
 export * from './lib/stepper/stepper.component';
 export * from './lib/step/step.component';
 export * from './lib/stepper.module';
+export * from './lib/stepper.providers';
 export * from './lib/previous-button.directive';
 export * from './lib/next-button.directive';
 export * from './lib/submit-button.directive';

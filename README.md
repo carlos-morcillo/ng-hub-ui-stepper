@@ -8,7 +8,7 @@
 A flexible, customizable, and accessible stepper component for Angular 21+. Perfect for multi-step forms, wizards, and guided user experiences with a focus on developer experience and modern standards.
 
 > [!IMPORTANT]
-> Version `22.8.2` targets **Angular 21** and uses the **Signals** architecture shared across `ng-hub-ui`.
+> Version `22.9.0` targets **Angular 21** and uses the **Signals** architecture shared across `ng-hub-ui`.
 
 ## Documentation and Live Examples
 
@@ -59,6 +59,7 @@ This library is part of the **ng-hub-ui** ecosystem:
 	- [Directives](#directives)
 	- [Host classes](#host-classes)
 	- [Services](#services)
+	- [Providers](#providers)
 	- [Interfaces](#interfaces)
 - [Internationalization](#internationalization)
 - [Styling](#styling)
@@ -107,9 +108,20 @@ The rest of the surface — `StepTriggerDirective`, `StepperNavDirective`, `Prev
 `NextButtonDirective` and `SubmitButtonDirective` — is imported the same way, one by one, as each
 template needs it.
 
+Then register the library once, so the built-in Back / Continue / Submit controls have text:
+
+```typescript
+import { provideHubStepper } from 'ng-hub-ui-stepper';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideHubStepper({ language: 'en' })]
+});
+```
+
 > **`StepperModule` is deprecated and will be removed in 23.0.0.** It only re-exports the seven
-> building blocks above, so importing them directly is the whole migration. `StepperModule.forRoot()`
-> goes with it — see [Internationalization](#internationalization).
+> building blocks above, so importing them directly is the whole migration, and
+> `StepperModule.forRoot()` becomes `provideHubStepper()` — same providers, no module. See
+> [Providers](#providers) and [Internationalization](#internationalization).
 
 In your template:
 
@@ -293,6 +305,46 @@ inject(StepperThemeService).setTheme({
 For a theme known at build time, prefer the [`hub-stepper-theme()` mixin](#sass-mixin): it scopes to a
 selector instead of the document root.
 
+### Providers
+
+#### `provideHubStepper(config?: StepperConfig)`
+
+The standalone entry point. Registers the ten bundled dictionaries and the `HubTranslationService`
+that `TranslatePipe` injects to resolve the built-in control labels — the service is not
+`providedIn: 'root'`, so without this (or another provider of it) the first render throws
+`NullInjectorError`.
+
+```typescript
+bootstrapApplication(AppComponent, {
+  providers: [provideHubStepper({ language: 'en', fallbackLanguage: 'en' })]
+});
+```
+
+It can also be scoped to the route that owns the wizard, which is what an application already
+configuring `provideHubTranslation()` at the root should do — see
+[Internationalization](#internationalization) for why.
+
+#### `STEPPER_DICTIONARIES`
+
+The bundled dictionaries as a plain record, keyed by language code, so you can register only the
+languages you ship or merge the labels into a dictionary of your own:
+
+```typescript
+import { STEPPER_DICTIONARIES } from 'ng-hub-ui-stepper';
+
+provideHubTranslation({
+  language: 'ca',
+  fallbackLanguage: 'en',
+  dictionaries: {
+    ca: { ...STEPPER_DICTIONARIES['ca'], ...myCatalanStrings },
+    en: { ...STEPPER_DICTIONARIES['en'], ...myEnglishStrings }
+  }
+});
+```
+
+The keys are flat — `BACK`, `CONTINUE`, `SUBMIT` — which is what the component resolves once its
+`HUBUI.STEPPER` namespace misses.
+
 ### Interfaces
 
 #### `StepperOptions`
@@ -305,7 +357,7 @@ interface StepperOptions {
 
 #### `StepperConfig`
 
-Accepted by the deprecated `StepperModule.forRoot()`, which registers the bundled dictionaries:
+Accepted by `provideHubStepper()` and by the deprecated `StepperModule.forRoot()`:
 
 ```typescript
 interface StepperConfig {
@@ -319,19 +371,22 @@ interface StepperConfig {
 The built-in back, continue and submit labels go through `TranslatePipe` from `ng-hub-ui-utils`. There are
 two ways to feed them, and they can be combined.
 
-**The bundled dictionaries — deprecated.** `StepperModule.forRoot()` registers translations for `en`,
-`es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh` and `ar`:
+**The bundled dictionaries.** `provideHubStepper()` registers translations for `en`, `es`, `ca`, `eu`,
+`gl`, `ast`, `an`, `de`, `zh` and `ar`, and the `HubTranslationService` that `TranslatePipe` injects:
 
 ```typescript
-imports: [StepperModule.forRoot({ language: 'en', fallbackLanguage: 'en' })];
+providers: [provideHubStepper({ language: 'en', fallbackLanguage: 'en' })];
 ```
 
-It is the only way to reach those dictionaries, and it is **removed in 23.0.0** along with the module.
-The dictionaries themselves are not exported, so they cannot be handed to a provider function: use the
-application dictionary below, or name the three controls through the `backLabel` / `continueLabel` /
-`submitLabel` inputs. Note that `forRoot()` is also what provides `HubTranslationService`, which
-`TranslatePipe` injects — an application that drops it must provide the service another way, which
-both `provideHubTranslation()` and `provideHubTranslationAdapter()` do.
+`StepperModule.forRoot({ language: 'en', fallbackLanguage: 'en' })` does the same and is **removed in
+23.0.0** along with the module; it now delegates to `provideHubStepper()`, so the swap changes nothing
+at runtime.
+
+One caveat: `provideHubStepper()` writes `HUB_TRANSLATION_CONFIG`, and that is a single
+application-wide token. If your application already calls `provideHubTranslation()` at the root, do
+not register both — whichever comes last wins and the other loses its dictionaries. Merge the stepper
+labels into your own call with [`STEPPER_DICTIONARIES`](#stepper_dictionaries), or scope
+`provideHubStepper()` to the route that owns the wizard.
 
 **Your application dictionary.** Configure `provideHubTranslationAdapter()` once in `app.config.ts`; its
 reactive dictionary updates the rendered navigation automatically. The component provides

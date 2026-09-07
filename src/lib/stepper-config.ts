@@ -1,5 +1,6 @@
 /**
- * Stepper i18n configuration used by StepperModule.forRoot.
+ * Stepper i18n configuration accepted by `provideHubStepper()` and by the deprecated
+ * `StepperModule.forRoot()`.
  */
 export interface StepperConfig {
 	/**

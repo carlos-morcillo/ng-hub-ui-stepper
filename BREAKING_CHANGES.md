@@ -8,7 +8,9 @@ This document tracks all breaking changes in the `ng-hub-ui-stepper` library.
 
 - **Change**: both are now marked `@deprecated`. Nothing is removed here and nothing changes at runtime — this release is the notice, and the removal lands in 23.0.0, the next version that tracks a new Angular major.
 - **Impact**: from 23.0.0 the symbol is gone from the entry point, so `import { StepperModule }`, `imports: [StepperModule]` and `StepperModule.forRoot({ … })` stop compiling. `forRoot()` costs more than the rest: it is the only thing that provides `HubTranslationService`, which the stepper's `translate` pipe injects and which is not `providedIn: 'root'`. An application that drops it without putting something in its place fails at runtime with `NullInjectorError: No provider for HubTranslationService`.
-- **Migration**: import the seven standalone building blocks directly, and replace `forRoot()` with one of the two paths that do not go through a module.
+- **Migration**: import the seven standalone building blocks directly, and swap `forRoot()` for `provideHubStepper()`, added in **22.9.0**. It registers the same dictionaries and the same service without a module — `forRoot()` delegates to it — so the swap changes nothing at runtime.
+
+> **Updated in 22.9.0.** The note first published with 22.8.2 had no provider function to point at, because there was none: the ten dictionaries were internal and died with the module, so it sent the reader off to name the three controls by hand or write their own dictionary. `provideHubStepper()` and the exported `STEPPER_DICTIONARIES` close that hole; the paths below are kept because they remain useful, not because they are the migration.
 
 **The building blocks:**
 
@@ -32,7 +34,38 @@ export class AppModule {}
 export class CheckoutComponent {}
 ```
 
-**The labels.** `forRoot()` bundles dictionaries for `en`, `es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh` and `ar`, and those dictionaries are not exported — so they cannot be handed to a provider function, and they go with the module. The three built-in controls are the only strings the library renders on its own, and there are two ways to name them.
+**The labels.** `forRoot()` bundles dictionaries for `en`, `es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh` and `ar`. Since 22.9.0 they no longer go with the module:
+
+```ts
+// Before
+@NgModule({ imports: [StepperModule.forRoot({ language: 'es', fallbackLanguage: 'en' })] })
+export class AppModule {}
+
+// After
+import { provideHubStepper } from 'ng-hub-ui-stepper';
+
+bootstrapApplication(AppComponent, {
+	providers: [provideHubStepper({ language: 'es', fallbackLanguage: 'en' })]
+});
+```
+
+`provideHubStepper()` writes `HUB_TRANSLATION_CONFIG`, which is one application-wide token. An application that already calls `provideHubTranslation()` at the root should merge the stepper languages into that call rather than register both — `STEPPER_DICTIONARIES` is exported for exactly that — or scope `provideHubStepper()` to the route that owns the wizard:
+
+```ts
+import { STEPPER_DICTIONARIES } from 'ng-hub-ui-stepper';
+import { provideHubTranslation } from 'ng-hub-ui-utils';
+
+provideHubTranslation({
+	language: 'es',
+	fallbackLanguage: 'en',
+	dictionaries: {
+		es: { ...STEPPER_DICTIONARIES['es'], ...myOwnSpanishStrings },
+		en: { ...STEPPER_DICTIONARIES['en'], ...myOwnEnglishStrings }
+	}
+});
+```
+
+The three built-in controls are the only strings the library renders on its own, so two shorter paths remain open when the ten languages are not what you want.
 
 Pass them straight to the component:
 

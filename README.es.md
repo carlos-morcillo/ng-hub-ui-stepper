@@ -8,7 +8,7 @@
 Un componente de stepper (pasos) flexible, personalizable y accesible para Angular 21+. Ideal para formularios de varios pasos, asistentes y experiencias de usuario guiadas, con un enfoque en la experiencia del desarrollador y los estándares modernos.
 
 > [!IMPORTANT]
-> La versión `22.8.2` está pensada para **Angular 21** y usa la arquitectura de **Signals** común a `ng-hub-ui`.
+> La versión `22.9.0` está pensada para **Angular 21** y usa la arquitectura de **Signals** común a `ng-hub-ui`.
 
 ## Documentación y ejemplos en vivo
 
@@ -59,6 +59,7 @@ Esta librería forma parte del ecosistema **ng-hub-ui**:
 	- [Directivas](#directivas)
 	- [Clases de host](#clases-de-host)
 	- [Servicios](#servicios)
+	- [Proveedores](#proveedores)
 	- [Interfaces](#interfaces)
 - [Internacionalización](#internacionalización)
 - [Estilos](#estilos)
@@ -107,9 +108,21 @@ El resto de la superficie — `StepTriggerDirective`, `StepperNavDirective`, `Pr
 `NextButtonDirective` y `SubmitButtonDirective` — se importa igual, uno a uno, según lo necesite cada
 plantilla.
 
+Después registra la biblioteca una vez, para que los controles integrados de atrás, continuar y
+enviar tengan texto:
+
+```typescript
+import { provideHubStepper } from 'ng-hub-ui-stepper';
+
+bootstrapApplication(AppComponent, {
+  providers: [provideHubStepper({ language: 'es' })]
+});
+```
+
 > **`StepperModule` está obsoleto y se retira en la 23.0.0.** Solo reexporta los siete bloques de
-> arriba, así que importarlos directamente es toda la migración. `StepperModule.forRoot()` se va con
-> él: consulta [Internacionalización](#internacionalización).
+> arriba, así que importarlos directamente es toda la migración, y `StepperModule.forRoot()` pasa a
+> ser `provideHubStepper()`: los mismos proveedores, sin módulo. Consulta
+> [Proveedores](#proveedores) e [Internacionalización](#internacionalización).
 
 En tu plantilla:
 
@@ -293,6 +306,46 @@ inject(StepperThemeService).setTheme({
 Para un tema conocido en tiempo de compilación es preferible el [mixin `hub-stepper-theme()`](#mixin-de-sass):
 se acota a un selector en lugar de a la raíz del documento.
 
+### Proveedores
+
+#### `provideHubStepper(config?: StepperConfig)`
+
+El punto de entrada standalone. Registra los diez diccionarios incluidos y el
+`HubTranslationService` que inyecta `TranslatePipe` para resolver las etiquetas de los controles
+integrados. El servicio no es `providedIn: 'root'`, así que sin esto —o sin otro proveedor suyo— el
+primer render lanza `NullInjectorError`.
+
+```typescript
+bootstrapApplication(AppComponent, {
+  providers: [provideHubStepper({ language: 'es', fallbackLanguage: 'en' })]
+});
+```
+
+También se puede acotar a la ruta que contiene el asistente, que es lo que debe hacer una aplicación
+que ya configure `provideHubTranslation()` en la raíz; el porqué está en
+[Internacionalización](#internacionalización).
+
+#### `STEPPER_DICTIONARIES`
+
+Los diccionarios incluidos como objeto plano, indexado por código de idioma, para registrar solo los
+idiomas que publicas o mezclar las etiquetas con un diccionario propio:
+
+```typescript
+import { STEPPER_DICTIONARIES } from 'ng-hub-ui-stepper';
+
+provideHubTranslation({
+  language: 'ca',
+  fallbackLanguage: 'en',
+  dictionaries: {
+    ca: { ...STEPPER_DICTIONARIES['ca'], ...misCadenasEnCatalan },
+    en: { ...STEPPER_DICTIONARIES['en'], ...misCadenasEnIngles }
+  }
+});
+```
+
+Las claves son planas —`BACK`, `CONTINUE`, `SUBMIT`—, que es lo que resuelve el componente cuando
+falla su espacio de nombres `HUBUI.STEPPER`.
+
 ### Interfaces
 
 #### `StepperOptions`
@@ -305,7 +358,7 @@ interface StepperOptions {
 
 #### `StepperConfig`
 
-Lo acepta el obsoleto `StepperModule.forRoot()`, que registra los diccionarios incluidos:
+Lo aceptan `provideHubStepper()` y el obsoleto `StepperModule.forRoot()`:
 
 ```typescript
 interface StepperConfig {
@@ -319,20 +372,23 @@ interface StepperConfig {
 Las etiquetas integradas de atrás, continuar y enviar pasan por `TranslatePipe` de `ng-hub-ui-utils`. Hay
 dos formas de alimentarlas, y se pueden combinar.
 
-**Los diccionarios incluidos — obsoleto.** `StepperModule.forRoot()` registra traducciones para `en`,
-`es`, `ca`, `eu`, `gl`, `ast`, `an`, `de`, `zh` y `ar`:
+**Los diccionarios incluidos.** `provideHubStepper()` registra traducciones para `en`, `es`, `ca`,
+`eu`, `gl`, `ast`, `an`, `de`, `zh` y `ar`, además del `HubTranslationService` que inyecta
+`TranslatePipe`:
 
 ```typescript
-imports: [StepperModule.forRoot({ language: 'es', fallbackLanguage: 'en' })];
+providers: [provideHubStepper({ language: 'es', fallbackLanguage: 'en' })];
 ```
 
-Es la única vía para llegar a esos diccionarios, y **se retira en la 23.0.0** junto con el módulo. Los
-diccionarios no se exportan, así que no se pueden pasar a una función `provide…`: usa el diccionario de
-tu aplicación que se describe abajo, o nombra los tres controles con las entradas `backLabel` /
-`continueLabel` / `submitLabel`. Ten en cuenta además que `forRoot()` es lo que provee
-`HubTranslationService`, que inyecta `TranslatePipe`: una aplicación que lo quite tiene que proveer el
-servicio de otra forma, cosa que hacen tanto `provideHubTranslation()` como
-`provideHubTranslationAdapter()`.
+`StepperModule.forRoot({ language: 'es', fallbackLanguage: 'en' })` hace lo mismo y **se retira en la
+23.0.0** junto con el módulo; ahora delega en `provideHubStepper()`, así que el cambio no altera nada
+en ejecución.
+
+Un aviso: `provideHubStepper()` escribe `HUB_TRANSLATION_CONFIG`, que es un único token de ámbito de
+aplicación. Si ya llamas a `provideHubTranslation()` en la raíz, no registres los dos: gana el último
+y el otro se queda sin diccionarios. Mezcla las etiquetas del stepper en tu propia llamada con
+[`STEPPER_DICTIONARIES`](#stepper_dictionaries), o acota `provideHubStepper()` a la ruta que contiene
+el asistente.
 
 **El diccionario de tu aplicación.** Configura `provideHubTranslationAdapter()` una sola vez en
 `app.config.ts`; su diccionario reactivo actualiza la navegación automáticamente. El componente provee
