@@ -2,6 +2,84 @@
 
 This document tracks all breaking changes in the `ng-hub-ui-stepper` library.
 
+## [22.10.0] - 2026-09-08
+
+### Announced: the unprefixed `stepper` CSS block is removed in 23.0.0
+
+- **Change**: the component wore the bare class `stepper` on its host, and named every part under
+  it — `stepper__nav`, `stepper__content`, `stepper__button`, the `stepper--layout-*` and
+  `stepper--rtl` modifiers, the `stepper--animated` / `stepper--anim-slide` / `stepper--anim-fade`
+  opt-ins, and three global `@keyframes` called `stepper-fade-in`, `stepper-slide-in-forward` and
+  `stepper-slide-in-backward`. From this release the block is `hub-stepper`, which is what every
+  other library of the family uses (`hub-calendar`, `hub-table`, `hub-panels__panel-header`).
+  **Nothing is removed here for the classes**: both spellings are written to the DOM, both are
+  matched by the stylesheet, and `hasAnimationClass()` reads either. Their removal lands in 23.0.0,
+  the next version that tracks a new Angular major. The three `@keyframes` are the exception — they
+  are renamed here and now, with no alias, because they were never a documented surface: nothing in
+  the README, the API tables or `FUNCTIONALITIES.md` has ever named them, and reaching one meant
+  guessing an internal identifier out of the compiled stylesheet.
+
+  One thing the compatibility window does not cover: the opt-in and the flavour must share a
+  prefix. `class="stepper--animated hub-stepper--anim-fade"` on the same host matches neither rule.
+  Migrate the three together.
+
+- **Why**: `stepper` is a word in the application's namespace, not the library's. A host
+  application with a `.stepper` rule of its own — and it is a common enough word that themes ship
+  one — restyled the component from the outside, with nothing in either codebase saying why. The
+  `@keyframes` are worse than the classes: emulated encapsulation does not scope keyframe names at
+  all, so `stepper-fade-in` was a global identifier this package planted in every application that
+  installed it. It is the same complaint that took the bare `[tooltip]` selector out of
+  `ng-hub-ui-utils` in its 22.14.0.
+
+- **What happens if you do nothing**: nothing, until 23.0.0 — unless you wrote
+  `animation-name: stepper-fade-in` (or `stepper-slide-in-forward` / `stepper-slide-in-backward`)
+  by hand, which stops resolving in this release. From 23.0.0 a stylesheet that targets `.stepper`,
+  `::ng-deep .stepper__nav`, `button.stepper__button` or any of the modifiers stops matching too —
+  and a stylesheet that stops matching fails silently, which is the reason this entry exists.
+  `class="stepper--animated"` on the host likewise stops enabling the transition.
+
+- **Migration**: prefix. Every name gains `hub-` and nothing else changes.
+
+    ```html
+    <!-- Before -->
+    <hub-stepper class="stepper--animated stepper--anim-fade">…</hub-stepper>
+
+    <!-- After -->
+    <hub-stepper class="hub-stepper--animated hub-stepper--anim-fade">…</hub-stepper>
+    ```
+
+    ```scss
+    // Before
+    .stepper { … }
+    ::ng-deep .stepper__nav-trigger { … }
+    button.stepper__button--next { … }
+
+    // After
+    .hub-stepper { … }
+    ::ng-deep .hub-stepper__nav-trigger { … }
+    button.hub-stepper__button--next { … }
+    ```
+
+    The step's own `step__content` becomes `hub-step__content` under the same terms.
+
+### The projected-control queries no longer look inside the steps
+
+- **Change**: `previousButton`, `nextButton` and `submitButton` are content queries for the three
+  control directives, and they ran with Angular's default `descendants: true`. Content projection
+  with a `select` only ever matches a **direct** child of the host, so a `button nextButton` nested
+  deeper — inside a `hub-step`, inside a form — could never reach the controls row. The query found
+  it regardless, the component concluded a custom control had been supplied, and rendered none: the
+  stepper lost its own button to a button it could not display. The three queries are now shallow.
+
+- **Impact**: a stepper with a control directive buried inside a step now renders its built-in
+  control again, where before it rendered nothing. The buried button keeps working as a next /
+  previous / submit control, because the directive is still applied to it — so a wizard that looked
+  broken now shows two ways forward instead of none.
+
+- **What happens if you do nothing**: the missing button comes back. If you want only the buried
+  one, move it out to be a direct child of `<hub-stepper>`, which is the only place the controls row
+  can render it anyway.
+
 ## [22.8.2] - 2026-09-06
 
 ### Announced: `StepperModule` and `StepperModule.forRoot()` are removed in 23.0.0

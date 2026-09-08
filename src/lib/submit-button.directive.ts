@@ -9,7 +9,7 @@ import { StepperComponent } from './stepper/stepper.component';
 	selector: 'button[submitButton]',
 	standalone: true,
 	host: {
-		class: 'stepper__button stepper__button--submit',
+		class: 'hub-stepper__button hub-stepper__button--submit stepper__button stepper__button--submit',
 		'[disabled]': 'disabled()',
 		'(click)': 'stepper.complete()'
 	}

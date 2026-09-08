@@ -5,6 +5,53 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [22.10.0] - 2026-09-08
+
+### Added
+
+- **`hubStepTrigger` finally draws something.** The directive was exported, listed in the module and
+  documented in both READMEs, and the stepper never queried it — so an `ng-template` marked with it
+  was captured and then dropped on the floor. It now replaces the trigger the default rail draws,
+  once per step, with the step itself as `$implicit` and `title`, `index`, `isCurrent`,
+  `isCompleted` and `disabled` in the context. Retiring the directive was the other option and was
+  rejected: it is published API with a name that promises exactly this, and the rail already
+  rendered its trigger through a parameterised inner template, so connecting it was smaller than
+  removing it. `hubStepperNav` still wins where both are present, because a custom rail draws its
+  own triggers.
+
+### Changed
+
+- **BREAKING — the CSS block is `hub-stepper`, and the bare `stepper` goes in 23.0.0.** The host
+  wore the class `stepper` and named every part under it, including three global `@keyframes`
+  called `stepper-fade-in` and friends — and emulated encapsulation does not scope keyframe names,
+  so those were identifiers this package planted in every application that installed it. `stepper`
+  is a word in the application's namespace, not the library's: a host with a `.stepper` rule of its
+  own restyled the component from outside. Every name is now prefixed, as in the rest of the
+  family. No class is removed in this release — both spellings are written to the DOM and both are
+  matched by the stylesheet — but the old ones are deprecated and go in 23.0.0. The three keyframe
+  names are the exception and are renamed outright, with no alias: they were never named in the
+  README, the API tables or `FUNCTIONALITIES.md`, so reaching one meant guessing an internal
+  identifier out of the compiled stylesheet. [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md) has
+  the full rename list, and the one thing the compatibility window does not cover — the opt-in and
+  the flavour have to share a prefix.
+
+### Fixed
+
+- **A control directive buried inside a step no longer makes the stepper render no control at
+  all.** `previousButton`, `nextButton` and `submitButton` are content queries, and they ran with
+  Angular's default `descendants: true` while `<ng-content select="button[nextButton]">` matches
+  only a direct child. So a `button nextButton` inside a step's own form was found by the query and
+  could not be projected: the component believed a custom control had been supplied and drew
+  nothing, leaving a wizard with no way forward. The three queries are now shallow, which is
+  exactly what projection can reach. The buried button keeps working as a control — the directive
+  is still applied to it — it simply no longer suppresses the built-in one.
+
+- **The roving focus of the rail is scoped to the rail, and finds a custom trigger.** It queried
+  `.stepper__nav-trigger` across the whole host, which would have picked up the tabs of a stepper
+  nested inside a step panel, and which finds nothing at all once `hubStepTrigger` draws the
+  trigger. It now searches inside the nav only, and accepts `[role="tab"]` as well as either
+  spelling of the class.
+
 ## [22.9.0] - 2026-09-07
 
 ### Added

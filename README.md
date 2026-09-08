@@ -8,7 +8,7 @@
 A flexible, customizable, and accessible stepper component for Angular 21+. Perfect for multi-step forms, wizards, and guided user experiences with a focus on developer experience and modern standards.
 
 > [!IMPORTANT]
-> Version `22.9.0` targets **Angular 21** and uses the **Signals** architecture shared across `ng-hub-ui`.
+> Version `22.10.0` targets **Angular 21** and uses the **Signals** architecture shared across `ng-hub-ui`.
 
 ## Documentation and Live Examples
 
@@ -211,19 +211,53 @@ button disabled while the move is unavailable.
 
 ### Step transitions
 
-Transitions are plain CSS and opt-in: add `stepper--animated` to the host, then pick the flavour with
-`stepper--anim-slide` (the default when neither is set) or `stepper--anim-fade`. Duration comes from
-`--hub-stepper-animation-duration`.
+Transitions are plain CSS and opt-in: add `hub-stepper--animated` to the host, then pick the flavour
+with `hub-stepper--anim-slide` (the default when neither is set) or `hub-stepper--anim-fade`. Duration
+comes from `--hub-stepper-animation-duration`. The unprefixed `stepper--animated`,
+`stepper--anim-slide` and `stepper--anim-fade` are still read, and go in 23.0.0.
 
 ```html
 <hub-stepper
-  class="stepper--animated stepper--anim-fade"
+  class="hub-stepper--animated hub-stepper--anim-fade"
   [style.--hub-stepper-animation-duration.ms]="240"
 >
   <hub-step title="Profile">...</hub-step>
   <hub-step title="Summary">...</hub-step>
 </hub-stepper>
 ```
+
+### Custom rail triggers
+
+`hubStepperNav` replaces the whole rail. When all you want is a different control inside each rail
+item — a numbered circle, an icon, a check on the steps already done — `hubStepTrigger` is one level
+down: the rail keeps its list, its `role="tablist"`, its orientation and its label, and only the
+button inside each item is yours.
+
+```html
+<hub-stepper #wizard>
+  <ng-template hubStepTrigger let-title="title" let-index="index" let-isCurrent="isCurrent" let-disabled="disabled">
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="isCurrent"
+      [disabled]="disabled"
+      (click)="wizard.goTo(index)"
+    >
+      <span class="badge">{{ index + 1 }}</span> {{ title }}
+    </button>
+  </ng-template>
+
+  <hub-step title="Account">...</hub-step>
+  <hub-step title="Payment">...</hub-step>
+</hub-stepper>
+```
+
+The context carries the step as `$implicit` and as `step`, plus `title`, `index`, `isCurrent`,
+`isCompleted` and `disabled`. Activating a step stays with you, through a template reference on the
+host — which is why the example names the stepper `#wizard`. Give the trigger `role="tab"` if you
+want the rail's arrow-key navigation to keep finding it.
+
+A stepper that declares both templates uses `hubStepperNav` and ignores this one.
 
 ## API Reference
 
@@ -274,7 +308,7 @@ Public members you can reach through a template reference (`<hub-stepper #steppe
 | `PreviousButtonDirective` | `button[previousButton]`, `button[backButton]` | `<button>` | Calls `goToPrevious()` and disables the button when there is no enabled previous step. |
 | `SubmitButtonDirective` | `button[submitButton]` | `<button>` | Calls `complete()` and disables the button while the current step is `disabled`. |
 | `StepperNavDirective` | `[hubStepperNav]`, `[stepperNav]` | `<ng-template>` | Replaces the built-in rail. Context: `steps`, `currentIndex`. |
-| `StepTriggerDirective` | `[hubStepTrigger]`, `[stepTrigger]` | `<ng-template>` | Captures a per-step trigger template. **Exported but not yet rendered** — the stepper draws its own triggers; this is groundwork, and applying it changes nothing today. |
+| `StepTriggerDirective` | `[hubStepTrigger]`, `[stepTrigger]` | `<ng-template>` | Replaces the rail trigger the default rail draws, once per step. Context: `$implicit` / `step`, `title`, `index`, `isCurrent`, `isCompleted`, `disabled`. Ignored when a `hubStepperNav` template is present, since a custom rail draws its own triggers. |
 
 ### Host classes
 
@@ -282,9 +316,16 @@ Set these on `<hub-stepper>` itself; they are read by the stylesheet, not by inp
 
 | Class | Effect |
 |---|---|
-| `stepper--animated` | Enables the CSS transition between step panels. Without it, panels swap instantly. |
-| `stepper--anim-slide` | Slide transition (also the default when only `stepper--animated` is set). |
-| `stepper--anim-fade` | Fade transition instead of the slide. |
+| `hub-stepper--animated` | Enables the CSS transition between step panels. Without it, panels swap instantly. |
+| `hub-stepper--anim-slide` | Slide transition (also the default when only `hub-stepper--animated` is set). |
+| `hub-stepper--anim-fade` | Fade transition instead of the slide. |
+
+> **Renamed in 22.10.0.** These were `stepper--animated`, `stepper--anim-slide` and
+> `stepper--anim-fade`, and the component itself wore a bare `stepper` class. `stepper` is a word in
+> the application's namespace, not the library's, so a host application with a `.stepper` rule of its
+> own restyled the component from the outside. The whole block is now `hub-stepper`, in line with
+> every other library of the family. **The old spellings still work and are still written to the
+> DOM**; both go in **23.0.0**. See [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md).
 
 ### Services
 

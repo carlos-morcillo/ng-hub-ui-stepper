@@ -75,7 +75,7 @@
 }
 
 /* Default layout places nav, content and footer in vertical order. */
-:host.stepper--layout-vertical {
+:host.hub-stepper--layout-vertical {
 	grid-template-columns: 1fr;
 	grid-template-areas:
 		'nav'
@@ -85,7 +85,7 @@
 }
 
 /* Sidebar layout: nav on the left, content+footer stacked on the right. */
-:host.stepper--layout-sidebar {
+:host.hub-stepper--layout-sidebar {
 	grid-template-columns: var(--hub-stepper-sidebar-width) minmax(0, 1fr);
 	grid-template-areas:
 		'nav content'
@@ -95,7 +95,7 @@
 }
 
 /* Base layout and spacing rules for all stepper sections. */
-.stepper {
+.hub-stepper {
 	&__nav {
 		grid-area: nav;
 		background-color: var(--hub-stepper-nav-bg);
@@ -176,7 +176,7 @@
 	}
 
 	/* Normalize projected action buttons when examples do not add custom classes. */
-	&__controls :is(button[previousButton], button[nextButton], button[submitButton], .stepper__button) {
+	&__controls :is(button[previousButton], button[nextButton], button[submitButton], .hub-stepper__button) {
 		border: 1px solid var(--hub-stepper-border-color);
 		border-radius: var(--hub-ref-radius-md, 0.375rem);
 		padding: var(--hub-stepper-control-padding-y) var(--hub-stepper-control-padding-x);
@@ -225,74 +225,90 @@
 }
 
 /* Sidebar-specific nav behavior. */
-:host.stepper--layout-sidebar .stepper__nav {
+:host.hub-stepper--layout-sidebar .hub-stepper__nav {
 	height: 100%;
 	overflow-y: auto;
 	overflow-x: hidden;
 }
 
-:host.stepper--layout-sidebar .stepper__nav-list {
+:host.hub-stepper--layout-sidebar .hub-stepper__nav-list {
 	flex-direction: column;
 	align-items: stretch;
 }
 
-:host.stepper--layout-sidebar .stepper__nav-item {
+:host.hub-stepper--layout-sidebar .hub-stepper__nav-item {
 	width: 100%;
 }
 
-:host.stepper--layout-sidebar .stepper__nav-trigger {
+:host.hub-stepper--layout-sidebar .hub-stepper__nav-trigger {
 	width: 100%;
 	justify-content: flex-start;
 }
 
 /* RTL mode support configured through stepper options. */
-:host.stepper--rtl {
+:host.hub-stepper--rtl {
 	direction: rtl;
 }
 
-:host.stepper--rtl .stepper__nav-list {
+:host.hub-stepper--rtl .hub-stepper__nav-list {
 	flex-direction: row;
 }
 
-:host.stepper--rtl.stepper--layout-sidebar .stepper__nav-list {
+:host.hub-stepper--rtl.hub-stepper--layout-sidebar .hub-stepper__nav-list {
 	flex-direction: column;
 }
 
-:host.stepper--rtl.stepper--layout-sidebar .stepper__nav-trigger {
+:host.hub-stepper--rtl.hub-stepper--layout-sidebar .hub-stepper__nav-trigger {
 	justify-content: flex-end;
 	text-align: right;
 }
 
-.stepper__button-icon {
+.hub-stepper__button-icon {
 	display: inline-flex;
 	align-items: center;
 	line-height: 1;
 }
 
 /* Content transition classes driven by host classes and CSS variables. */
-.stepper__content--animated.stepper__content--animating .stepper__content-panel {
+.hub-stepper__content--animated.hub-stepper__content--animating .hub-stepper__content-panel {
 	animation-duration: var(--hub-stepper-animation-duration);
 	animation-timing-function: var(--hub-stepper-animation-easing);
 	animation-fill-mode: both;
 }
 
-:host.stepper--animated.stepper--anim-fade .stepper__content--animating .stepper__content-panel {
-	animation-name: stepper-fade-in;
+/* The three transition modifiers are written by the consuming application on the host, so both
+   spellings are matched while the unprefixed one lives: `hub-stepper--animated` is the name from
+   22.10.0 on, `stepper--animated` the one it replaces, removed in 23.0.0. One loop, not two nested
+   ones: the opt-in and the flavour have to share a prefix, so `stepper--animated
+   hub-stepper--anim-fade` on the same host matches nothing. Mixing them is not a migration state
+   worth doubling this block for. */
+$hub-stepper-blocks: 'hub-stepper', 'stepper';
+
+@each $block in $hub-stepper-blocks {
+	:host.#{$block}--animated.#{$block}--anim-fade .hub-stepper__content--animating .hub-stepper__content-panel {
+		animation-name: hub-stepper-fade-in;
+	}
+
+	:host.#{$block}--animated:not(.#{$block}--anim-fade)
+		.hub-stepper__content--animating.hub-stepper__content--forward
+		.hub-stepper__content-panel,
+	:host.#{$block}--animated.#{$block}--anim-slide
+		.hub-stepper__content--animating.hub-stepper__content--forward
+		.hub-stepper__content-panel {
+		animation-name: hub-stepper-slide-in-forward;
+	}
+
+	:host.#{$block}--animated:not(.#{$block}--anim-fade)
+		.hub-stepper__content--animating.hub-stepper__content--backward
+		.hub-stepper__content-panel,
+	:host.#{$block}--animated.#{$block}--anim-slide
+		.hub-stepper__content--animating.hub-stepper__content--backward
+		.hub-stepper__content-panel {
+		animation-name: hub-stepper-slide-in-backward;
+	}
 }
 
-:host.stepper--animated:not(.stepper--anim-fade) .stepper__content--animating.stepper__content--forward .stepper__content-panel,
-:host.stepper--animated.stepper--anim-slide .stepper__content--animating.stepper__content--forward .stepper__content-panel {
-	animation-name: stepper-slide-in-forward;
-}
-
-:host.stepper--animated:not(.stepper--anim-fade)
-	.stepper__content--animating.stepper__content--backward
-	.stepper__content-panel,
-:host.stepper--animated.stepper--anim-slide .stepper__content--animating.stepper__content--backward .stepper__content-panel {
-	animation-name: stepper-slide-in-backward;
-}
-
-@keyframes stepper-fade-in {
+@keyframes hub-stepper-fade-in {
 	from {
 		opacity: 0;
 	}
@@ -301,7 +317,7 @@
 	}
 }
 
-@keyframes stepper-slide-in-forward {
+@keyframes hub-stepper-slide-in-forward {
 	from {
 		opacity: 0;
 		transform: translateX(var(--hub-stepper-animation-distance));
@@ -312,7 +328,7 @@
 	}
 }
 
-@keyframes stepper-slide-in-backward {
+@keyframes hub-stepper-slide-in-backward {
 	from {
 		opacity: 0;
 		transform: translateX(calc(-1 * var(--hub-stepper-animation-distance)));
@@ -324,7 +340,7 @@
 }
 
 /* Ensure projected action buttons keep the component visual style. */
-:host ::ng-deep button.stepper__button {
+:host ::ng-deep button.hub-stepper__button {
 	border: 1px solid var(--hub-stepper-border-color);
 	border-radius: var(--hub-ref-radius-md, 0.375rem);
 	padding: var(--hub-stepper-control-padding-y) var(--hub-stepper-control-padding-x);
@@ -335,18 +351,18 @@
 	color: var(--hub-stepper-text-color);
 }
 
-:host ::ng-deep button.stepper__button--back {
+:host ::ng-deep button.hub-stepper__button--back {
 	background-color: var(--hub-stepper-background-color);
 }
 
-:host ::ng-deep button.stepper__button--next,
-:host ::ng-deep button.stepper__button--submit {
+:host ::ng-deep button.hub-stepper__button--next,
+:host ::ng-deep button.hub-stepper__button--submit {
 	background-color: var(--hub-stepper-primary-color);
 	border-color: var(--hub-stepper-primary-color);
 	color: var(--hub-stepper-accent-on, #ffffff);
 }
 
-:host ::ng-deep button.stepper__button:disabled {
+:host ::ng-deep button.hub-stepper__button:disabled {
 	opacity: var(--hub-stepper-disabled-opacity);
 	cursor: not-allowed;
 }
@@ -382,7 +398,7 @@
    `[hubOverflowTooltip]` directive then surfaces the full title on hover when a
    title actually overflows. `:host(...)` targets the host modifier under the
    component's emulated encapsulation. */
-:host(.stepper--truncate-titles) .stepper__nav-title {
+:host(.hub-stepper--truncate-titles) .hub-stepper__nav-title {
 	display: inline-block;
 	max-inline-size: var(--hub-stepper-nav-title-max-width, 12rem);
 	overflow: hidden;

@@ -9,7 +9,7 @@ import { StepperComponent } from './stepper/stepper.component';
 	selector: 'button[previousButton], button[backButton]',
 	standalone: true,
 	host: {
-		class: 'stepper__button stepper__button--back',
+		class: 'hub-stepper__button hub-stepper__button--back stepper__button stepper__button--back',
 		'[disabled]': 'disabled()',
 		'(click)': 'stepper.goToPrevious()'
 	}

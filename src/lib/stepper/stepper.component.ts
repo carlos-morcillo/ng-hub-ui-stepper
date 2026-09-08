@@ -26,6 +26,7 @@ import {
 import { NextButtonDirective } from '../next-button.directive';
 import { PreviousButtonDirective } from '../previous-button.directive';
 import { StepComponent } from '../step/step.component';
+import { StepTriggerDirective } from '../step-trigger.directive';
 import { StepperNavDirective } from '../stepper-nav.directive';
 import { SubmitButtonDirective } from '../submit-button.directive';
 import { StepperAnimationDirection, StepperLayout, StepperOptions } from './stepper-options';
@@ -58,10 +59,17 @@ let nextStepperInstanceId = 0;
 	imports: [NgTemplateOutlet, TranslatePipe, UcfirstPipe, HubOverflowTooltipDirective],
 	providers: [{ provide: HUB_TRANSLATION_PREFIX, useValue: 'HUBUI.STEPPER' }],
 	host: {
-		class: 'stepper',
+		// `hub-stepper` is the block from 22.10.0 on. The bare `stepper` beside it is the name it
+		// replaces — a word in the application's namespace, not the library's — kept working until
+		// it is removed in 23.0.0. Same story for every modifier below.
+		class: 'hub-stepper stepper',
+		'[class.hub-stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
 		'[class.stepper--layout-vertical]': 'layout() === StepperLayout.Vertical',
+		'[class.hub-stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
 		'[class.stepper--layout-sidebar]': 'layout() === StepperLayout.Sidebar',
+		'[class.hub-stepper--rtl]': 'isRtl()',
 		'[class.stepper--rtl]': 'isRtl()',
+		'[class.hub-stepper--truncate-titles]': 'truncateTitles()',
 		'[class.stepper--truncate-titles]': 'truncateTitles()',
 		'[attr.data-variant]': 'variant() ?? null',
 		'[style.--hub-stepper-accent]': 'customAccent()'
@@ -164,14 +172,33 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 	/** Optional content-projected template for custom navigation. */
 	readonly stepperNavTpt = contentChild(StepperNavDirective, { read: TemplateRef });
 
-	/** Optional custom projected previous button. */
-	readonly previousButton = contentChild(PreviousButtonDirective);
+	/**
+	 * Optional content-projected template rendered in place of the built-in rail trigger, once
+	 * per step. Only the default rail uses it: a `hubStepperNav` template draws its own triggers.
+	 *
+	 * The context carries the step itself as `$implicit`, plus `title`, `index`, `isCurrent`,
+	 * `isCompleted` and `disabled`. Activation stays with the consumer, which is what a template
+	 * reference on the host is for: `<hub-stepper #wizard>` … `(click)="wizard.goTo(index)"`.
+	 */
+	readonly stepTriggerTpt = contentChild(StepTriggerDirective, { read: TemplateRef });
 
-	/** Optional custom projected next button. */
-	readonly nextButton = contentChild(NextButtonDirective);
+	/**
+	 * Optional custom projected previous button.
+	 *
+	 * `descendants: false` on the three control queries is not a detail. Content projection with
+	 * a `select` only ever matches a direct child of the host, so a `button previousButton`
+	 * nested deeper — inside a `hub-step`, inside a form — can never reach the controls row. With
+	 * the default `descendants: true` the query found it anyway, the component concluded a custom
+	 * control had been supplied, and rendered no button at all: the stepper lost its own control
+	 * to a button it could not display.
+	 */
+	readonly previousButton = contentChild(PreviousButtonDirective, { descendants: false });
 
-	/** Optional custom projected submit button. */
-	readonly submitButton = contentChild(SubmitButtonDirective);
+	/** Optional custom projected next button. See `previousButton` for why the query is shallow. */
+	readonly nextButton = contentChild(NextButtonDirective, { descendants: false });
+
+	/** Optional custom projected submit button. See `previousButton` for why the query is shallow. */
+	readonly submitButton = contentChild(SubmitButtonDirective, { descendants: false });
 
 	/**
 	 * Optional visual and layout configuration for the stepper container.
@@ -341,7 +368,11 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 		this.focusedIndex.set(index);
 		this.#cdr.detectChanges();
 		const host: HTMLElement = this.#hostRef.nativeElement;
-		const triggers = host.querySelectorAll<HTMLElement>('.stepper__nav-trigger');
+		// Scoped to the rail so a nested stepper inside a step panel cannot contribute tabs, and
+		// widened to `[role="tab"]` so a `hubStepTrigger` template that carries the role but not
+		// the class still receives focus. A comma selector yields each element once.
+		const rail = host.querySelector('.hub-stepper__nav') ?? host;
+		const triggers = rail.querySelectorAll<HTMLElement>('.hub-stepper__nav-trigger, .stepper__nav-trigger, [role="tab"]');
 		triggers[index]?.focus();
 	}
 
@@ -350,9 +381,14 @@ export class StepperComponent implements AfterContentInit, OnDestroy {
 		return this.steps()?.[this.currentIndex()] ?? null;
 	}
 
-	/** Returns whether host classes enable animated transitions. */
+	/**
+	 * Returns whether host classes enable animated transitions. Both spellings count while the
+	 * unprefixed one is supported: `hub-stepper--animated` from 22.10.0, `stepper--animated`
+	 * until 23.0.0 removes it.
+	 */
 	hasAnimationClass(): boolean {
-		return this.#hostRef.nativeElement.classList.contains('stepper--animated');
+		const classes: DOMTokenList = this.#hostRef.nativeElement.classList;
+		return classes.contains('hub-stepper--animated') || classes.contains('stepper--animated');
 	}
 
 	/** Returns whether transition direction is forward. */

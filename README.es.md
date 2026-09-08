@@ -8,7 +8,7 @@
 Un componente de stepper (pasos) flexible, personalizable y accesible para Angular 21+. Ideal para formularios de varios pasos, asistentes y experiencias de usuario guiadas, con un enfoque en la experiencia del desarrollador y los estándares modernos.
 
 > [!IMPORTANT]
-> La versión `22.9.0` está pensada para **Angular 21** y usa la arquitectura de **Signals** común a `ng-hub-ui`.
+> La versión `22.10.0` está pensada para **Angular 21** y usa la arquitectura de **Signals** común a `ng-hub-ui`.
 
 ## Documentación y ejemplos en vivo
 
@@ -212,19 +212,53 @@ y mantiene el botón deshabilitado mientras el movimiento no está disponible.
 
 ### Transiciones entre pasos
 
-Las transiciones son CSS puro y opcionales: añade `stepper--animated` al host y elige el tipo con
-`stepper--anim-slide` (el valor por defecto si no indicas ninguno) o `stepper--anim-fade`. La duración sale
-de `--hub-stepper-animation-duration`.
+Las transiciones son CSS puro y opcionales: añade `hub-stepper--animated` al host y elige el tipo con
+`hub-stepper--anim-slide` (el valor por defecto si no indicas ninguno) o `hub-stepper--anim-fade`. La
+duración sale de `--hub-stepper-animation-duration`. Las grafías `stepper--animated`,
+`stepper--anim-slide` y `stepper--anim-fade` se siguen leyendo, y desaparecen en la 23.0.0.
 
 ```html
 <hub-stepper
-  class="stepper--animated stepper--anim-fade"
+  class="hub-stepper--animated hub-stepper--anim-fade"
   [style.--hub-stepper-animation-duration.ms]="240"
 >
   <hub-step title="Perfil">...</hub-step>
   <hub-step title="Resumen">...</hub-step>
 </hub-stepper>
 ```
+
+### Disparadores de riel a medida
+
+`hubStepperNav` sustituye el riel entero. Cuando lo único que quieres es otro control dentro de cada
+elemento del riel — un círculo numerado, un icono, una marca en los pasos ya hechos —
+`hubStepTrigger` está un nivel por debajo: el riel conserva su lista, su `role="tablist"`, su
+orientación y su etiqueta, y solo el botón de dentro es tuyo.
+
+```html
+<hub-stepper #wizard>
+  <ng-template hubStepTrigger let-title="title" let-index="index" let-isCurrent="isCurrent" let-disabled="disabled">
+    <button
+      type="button"
+      role="tab"
+      [attr.aria-selected]="isCurrent"
+      [disabled]="disabled"
+      (click)="wizard.goTo(index)"
+    >
+      <span class="badge">{{ index + 1 }}</span> {{ title }}
+    </button>
+  </ng-template>
+
+  <hub-step title="Cuenta">...</hub-step>
+  <hub-step title="Pago">...</hub-step>
+</hub-stepper>
+```
+
+El contexto trae el paso como `$implicit` y como `step`, más `title`, `index`, `isCurrent`,
+`isCompleted` y `disabled`. Activar un paso sigue siendo cosa tuya, a través de una referencia de
+plantilla en el host — por eso el ejemplo nombra al stepper `#wizard`. Ponle `role="tab"` al
+disparador si quieres que la navegación por flechas del riel lo siga encontrando.
+
+Un stepper que declare las dos plantillas usa `hubStepperNav` e ignora esta.
 
 ## Referencia de la API
 
@@ -275,7 +309,7 @@ Miembros públicos accesibles mediante una referencia de plantilla (`<hub-steppe
 | `PreviousButtonDirective` | `button[previousButton]`, `button[backButton]` | `<button>` | Llama a `goToPrevious()` y deshabilita el botón cuando no hay un paso anterior habilitado. |
 | `SubmitButtonDirective` | `button[submitButton]` | `<button>` | Llama a `complete()` y deshabilita el botón mientras el paso actual está `disabled`. |
 | `StepperNavDirective` | `[hubStepperNav]`, `[stepperNav]` | `<ng-template>` | Sustituye el riel integrado. Contexto: `steps`, `currentIndex`. |
-| `StepTriggerDirective` | `[hubStepTrigger]`, `[stepTrigger]` | `<ng-template>` | Captura una plantilla de disparador por paso. **Se exporta pero todavía no se renderiza** — el stepper dibuja sus propios disparadores; esto es trabajo previo y aplicarla hoy no cambia nada. |
+| `StepTriggerDirective` | `[hubStepTrigger]`, `[stepTrigger]` | `<ng-template>` | Sustituye el disparador que dibuja el riel integrado, una vez por paso. Contexto: `$implicit` / `step`, `title`, `index`, `isCurrent`, `isCompleted`, `disabled`. Se ignora si hay una plantilla `hubStepperNav`, porque un riel propio dibuja sus disparadores. |
 
 ### Clases de host
 
@@ -283,9 +317,17 @@ Se ponen en el propio `<hub-stepper>`; las lee la hoja de estilos, no los inputs
 
 | Clase | Efecto |
 |---|---|
-| `stepper--animated` | Activa la transición CSS entre paneles de paso. Sin ella, los paneles se intercambian de golpe. |
-| `stepper--anim-slide` | Transición de deslizamiento (también la de por defecto cuando solo está `stepper--animated`). |
-| `stepper--anim-fade` | Transición de fundido en lugar del deslizamiento. |
+| `hub-stepper--animated` | Activa la transición CSS entre paneles de paso. Sin ella, los paneles se intercambian de golpe. |
+| `hub-stepper--anim-slide` | Transición de deslizamiento (también la de por defecto cuando solo está `hub-stepper--animated`). |
+| `hub-stepper--anim-fade` | Transición de fundido en lugar del deslizamiento. |
+
+> **Renombradas en la 22.10.0.** Antes eran `stepper--animated`, `stepper--anim-slide` y
+> `stepper--anim-fade`, y el propio componente llevaba una clase `stepper` a secas. `stepper` es una
+> palabra del espacio de nombres de la aplicación, no de la librería, así que una aplicación con su
+> propia regla `.stepper` reestilaba el componente desde fuera. El bloque entero pasa a ser
+> `hub-stepper`, como en el resto de la familia. **Las grafías antiguas siguen funcionando y se
+> siguen escribiendo en el DOM**; ambas desaparecen en la **23.0.0**. Ver
+> [`BREAKING_CHANGES.md`](./BREAKING_CHANGES.md).
 
 ### Servicios
 

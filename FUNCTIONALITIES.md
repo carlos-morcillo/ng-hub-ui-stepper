@@ -24,9 +24,10 @@ The public surface is two components, `hub-stepper` and `hub-step`, five directi
 | | Opt-in truncation (`truncateTitles`) | ✅ |
 | | Overflowing truncated title revealed as a tooltip | ✅ |
 | | Truncation width (`--hub-stepper-nav-title-max-width`) | ❌ |
-| **Transitions** | Opt-in via the `stepper--animated` host class | ✅ |
-| | Slide flavour (`stepper--anim-slide`, also the default) | ✅ |
-| | Fade flavour (`stepper--anim-fade`) | ✅ |
+| **Transitions** | Opt-in via the `hub-stepper--animated` host class | ✅ |
+| | Slide flavour (`hub-stepper--anim-slide`, also the default) | ✅ |
+| | Fade flavour (`hub-stepper--anim-fade`) | ✅ |
+| | The unprefixed `stepper--animated` / `stepper--anim-slide` / `stepper--anim-fade`, deprecated, removed in 23.0.0 | ❌ |
 | | Duration (`--hub-stepper-animation-duration`) | ✅ |
 | **Outputs** | `completed` | ✅ |
 | | `nextStep` (new index) | ✅ |
@@ -65,9 +66,12 @@ The public surface is two components, `hub-stepper` and `hub-step`, five directi
 | | Projected controls relocated by a host (a modal footer) keep working | ✅ |
 | **Templates** | `hubStepperNav` / `stepperNav` replaces the whole rail | ✅ |
 | | Rail template context (`steps`, `currentIndex`) | ✅ |
-| | `hubStepTrigger` / `stepTrigger` captures a per-step trigger template | ❌ |
+| | `hubStepTrigger` / `stepTrigger` replaces the trigger of every rail item | ❌ |
+| | Trigger template context (`$implicit` / `step`, `title`, `index`, `isCurrent`, `isCompleted`, `disabled`) | ❌ |
 
-> `StepTriggerDirective` is exported and instantiable, but the stepper does not render per-step trigger templates yet, so applying it has no visible effect today. It is listed because it is part of the published surface, not because it does anything.
+> `hubStepTrigger` renders from **22.10.0** on; before that the directive was exported and captured its
+> `TemplateRef`, and the stepper never queried it. No interactive example uses it yet — both READMEs
+> carry a worked snippet — so the coverage column says so.
 
 ## Internationalization
 
@@ -100,7 +104,8 @@ The public surface is two components, `hub-stepper` and `hub-step`, five directi
 | | Step-indicator diameter (`--hub-stepper-indicator-size`) | ❌ |
 | **Sass** | `hub-stepper-theme()` mixin, from `ng-hub-ui-stepper/styles` | ✅ |
 | **Runtime** | `StepperThemeService.setTheme()` | ✅ |
-| **Structure** | BEM classes (`stepper__nav`, `__nav-trigger`, `__content`, `__controls`) | ❌ |
+| **Structure** | BEM classes (`hub-stepper__nav`, `__nav-trigger`, `__content`, `__controls`) | ❌ |
+| | The unprefixed `stepper__*` names beside them, deprecated, removed in 23.0.0 | ❌ |
 
 > `provideHubStepper()` returns `EnvironmentProviders`, which only a bootstrap or a route can
 > declare — a component cannot. The i18n example therefore names it in its code tab and switches
